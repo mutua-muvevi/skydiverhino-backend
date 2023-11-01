@@ -34,7 +34,7 @@ app.use(databaseSanitizer);
 //routes
 app.use("/api/user", require("./routes/user"));
 app.use("/api/lead", require("./routes/lead"));
-console.log("No blockage");
+app.use("/api/service", require("./routes/service"));
 
 
 //error middleware
@@ -47,3 +47,4 @@ app.on("error", (err) => {
 
 module.exports = app;
 require("./config/port");
+console.log("No blockage");
