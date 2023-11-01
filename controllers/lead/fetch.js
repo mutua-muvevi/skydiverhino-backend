@@ -44,7 +44,6 @@ exports.fetchAllLeads = async (req, res, next) => {
 	}
 };
 
-
 //fetch a single lead
 exports.fetchLeadByID = async (req, res, next) => {
 	const { leadID } = req.params;
