@@ -1,8 +1,6 @@
 //package imports
 const mongoose = require("mongoose");
-const Expense = require("../expenses/expenses");
 const logger = require("../../utils/logger");
-const Payment = require("../payment/payment");
 
 //initialization
 const { Schema } = mongoose;
@@ -91,44 +89,6 @@ const UserSchema = new Schema(
 	},
 	MainSchemaOptions
 );
-
-//Update the toalExpenses field in User schema
-UserSchema.pre("save", async function (next) {
-	try {
-		if (this.isModified("expenses")) {
-			const expenses = await Expense.aggregate([
-				{ $match: { owner: this._id } },
-				{ $group: { _id: null, total: { $sum: "$amount" } } },
-			]);
-
-			this.totalExpenses = expenses[0]?.total || 0;
-		}
-
-		next();
-	} catch (error) {
-		logger.error(`Error in UserSchema.pre("save") expenses: ${error}`);
-		next(error);
-	}
-});
-
-//Update the totalIncome field in User schema
-UserSchema.pre("save", async function(next){
-	try {
-		if(this.isModified("income")){
-			const income = await Payment.aggregate([
-				{ $match: { owner: this._id } },
-				{ $group: { _id: null, total: { $sum: "$amount" } } }
-			]);
-
-			this.totalIncome = income[0]?.total || 0;
-
-			next()
-		}
-	} catch (error) {
-		logger.error(`Error in UserSchema.pre("save") income: ${error}`);
-		next(error);
-	}
-})
 
 //model
 const User = mongoose.model("User", UserSchema);
