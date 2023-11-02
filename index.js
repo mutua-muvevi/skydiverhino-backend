@@ -35,6 +35,7 @@ app.use(databaseSanitizer);
 app.use("/api/user", require("./routes/user"));
 app.use("/api/lead", require("./routes/lead"));
 app.use("/api/service", require("./routes/service"));
+app.use("/api/client", require("./routes/client"));
 
 
 //error middleware
