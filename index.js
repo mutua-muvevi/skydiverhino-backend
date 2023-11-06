@@ -36,6 +36,7 @@ app.use("/api/user", require("./routes/user"));
 app.use("/api/lead", require("./routes/lead"));
 app.use("/api/service", require("./routes/service"));
 app.use("/api/client", require("./routes/client"));
+app.use("/api/faq", require("./routes/faq"));
 
 
 //error middleware
