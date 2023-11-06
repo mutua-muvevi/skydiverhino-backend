@@ -143,6 +143,7 @@ exports.registerJWT = async (req, res, next) => {
 		// Logging user creation and performance
 		logger.info(`User created successfully: ${user.email} in ${timeTaken}ms`);
 	} catch (error) {
+		console.log(error)
 		logger.error(`Error in RegisterJWT Controller: ${error.message}`);
 		next(error);
 	}
