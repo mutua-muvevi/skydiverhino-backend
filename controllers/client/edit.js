@@ -31,10 +31,6 @@ exports.editClient = async (req, res, next) => {
 	if (!clientID || !mongoose.Types.ObjectId.isValid(clientID))
 		errors.push("Client ID is required");
 
-	if (!user.clients.includes(clientID)) {
-		errors.push("Not authorized to edit this client");
-	}
-
 	if (errors.length > 0) {
 		logger.warn(
 			`Validation error in EditClient Controller: ${errors.join(", ")}`

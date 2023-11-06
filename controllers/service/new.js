@@ -74,10 +74,6 @@ exports.createService = async (req, res, next) => {
 		// Save the service
 		await service.save();
 
-		// Push the service to the user's services array
-		user.services.push(service._id);
-		await user.save();
-
 		// Create a notification
 		const notification = {
 			details: `A new service ${name} has been created successfully`,

@@ -40,16 +40,12 @@ exports.convertToClient = async (req, res, next) => {
 		const start = performance.now();
 
 		// retrieve the lead
-		const lead = await Lead.findById(leadID).populate("owner", "_id");
+		const lead = await Lead.findById(leadID);
+		console.log("Lead is", lead)
 
 		if (!lead) {
 			logger.warn(`Lead not found with ID: ${leadID}`);
 			return next(new ErrorResponse("Lead not found", 404));
-		}
-
-		if (!lead.owner._id.equals(user._id)) {
-			logger.warn(`User ${user._id} does not own lead ${leadID}`);
-			return next(new ErrorResponse("You do not own this lead", 403));
 		}
 
 		// create a new client from the lead's data
@@ -70,7 +66,7 @@ exports.convertToClient = async (req, res, next) => {
 		await client.save();
 
 		// delete the lead from the database
-		await Lead.findByIdAndDelete(lead._id);
+		await Lead.findByIdAndDelete(leadID);
 
 		// create notification
 		const notification = {
@@ -100,6 +96,7 @@ exports.convertToClient = async (req, res, next) => {
 			} successfully for user ${user._id} in ${end - start}ms`
 		);
 	} catch (error) {
+		console.log("Error", error)
 		logger.error(`Error in ConvertToClient Controller: ${error.message}`);
 		next(error);
 	}

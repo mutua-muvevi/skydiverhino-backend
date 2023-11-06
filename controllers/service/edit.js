@@ -75,7 +75,7 @@ exports.editService = async (req, res, next) => {
 		await createNotification(req, res, next);
 
 		// Send the response
-		res.status(201).json({
+		res.status(200).json({
 			success: true,
 			message: "Service updated successfully",
 			data: service,

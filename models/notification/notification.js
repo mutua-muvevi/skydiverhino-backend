@@ -55,7 +55,9 @@ const NotificationSchema = new Schema(
 					"Client",
 					"Lead",
 					"Payment",
-					"Expense"
+					"Expense",
+
+					"FAQ",
 				],
 				message: "{VALUE} is not supported",
 			},
