@@ -14,7 +14,7 @@
 //the imports
 const mongoose = require("mongoose");
 const Service = require("../../models/service/service");
-const User = require("../../models/user/user");
+
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");

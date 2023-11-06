@@ -9,10 +9,12 @@ const { forgotPassword } = require("../controllers/user/password/forget");
 const { resetpassword } = require("../controllers/user/password/reset");
 const { verifyOTP } = require("../controllers/user/otp/otp");
 const { fetchMe } = require("../controllers/user/fetch/me");
+const { editUser } = require("../controllers/user/edit/edit");
 
 //middlewares imports
 const { getMe } = require("../middlewares/me");
 const { authMiddleware } = require("../middlewares/authentication");
+const checkUserExistence = require("../middlewares/checkuser");
 
 router.post("/register", registerJWT);
 
@@ -24,7 +26,9 @@ router.post("/resetpassword/:resetToken", resetpassword);
 router.post("/otp", verifyOTP);
 
 //fetch routes
-router.get("/fetch/me", authMiddleware, getMe, fetchMe);
+router.get("/fetch/me", authMiddleware, checkUserExistence, getMe, fetchMe);
 
+//edit routes
+router.put("/edit/me/:userID", authMiddleware, checkUserExistence, editUser);
 
 module.exports = router;
