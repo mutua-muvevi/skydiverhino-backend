@@ -113,34 +113,9 @@ const ClientSchema = new Schema(
 				type: String,
 			},
 		],
-		owner: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-			index: true,
-		},
 	},
 	SchemaOptions
 );
-
-//Update the totalPayments field in User schema
-ClientSchema.pre("save", async function(next){
-	try {
-		if(this.isModified("payments")){
-			const payments = await Payment.aggregate([
-				{ $match: { client: this._id } },
-				{ $group: { _id: null, total: { $sum: "$amount" } } }
-			]);
-
-			this.totalPayments = payments[0]?.total || 0;
-
-			next()
-		}
-	} catch (error) {
-		logger.error(`Error in ClientSchema.pre("save") income: ${error}`);
-		next(error);
-	}
-})
 
 //the model
 const Client = mongoose.model("Client", ClientSchema);

@@ -134,7 +134,7 @@ exports.deleteManyServices = async (req, res, next) => {
 			_id: { $in: serviceIDs },
 		});
 
-		//TODO ensure that this logic is in every delete many controller
+		
 		if (services.length !== serviceIDs.length) {
 			logger.warn("Some services not found or not authorized");
 			return next(
@@ -166,12 +166,6 @@ exports.deleteManyServices = async (req, res, next) => {
 				)
 			);
 		}
-
-		// Step : Remove the services from the user's services array
-		await User.updateOne(
-			{ _id: user._id },
-			{ $pullAll: { services: serviceIDs } }
-		);
 
 		//Step: Delete the services
 		await Service.deleteMany({

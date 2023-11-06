@@ -39,10 +39,6 @@ exports.editLead = async (req, res, next) => {
 		return next(new ErrorResponse(errors.join(", "), 400));
 	}
 
-	if (!user.leads.includes(leadID)) {
-		return next(new ErrorResponse("Not authorized to edit this lead", 403));
-	}
-
 	//updating the fields
 	const updatedLead = {};
 
@@ -119,6 +115,7 @@ exports.editLead = async (req, res, next) => {
 			}ms`
 		);
 	} catch (error) {
+		console.log("Error", error)
 		logger.error(`Error in EditClient Controller: ${error.message}`);
 		next(error);
 	}
