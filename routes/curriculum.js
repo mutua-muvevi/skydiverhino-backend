@@ -12,6 +12,7 @@ const { upload } = require("../utils/multer");
 const { createCurriculum } = require("../controllers/curriculum/new");
 const { editCurriculum } = require("../controllers/curriculum/edit");
 const { deleteCurriculum } = require("../controllers/curriculum/delete");
+const { fetchAllCurriculums, fetchCurriculumByID } = require("../controllers/curriculum/fetch");
 
 //routes
 router.post(
@@ -33,6 +34,18 @@ router.delete(
 	authMiddleware,
 	checkUserExistence,
 	deleteCurriculum
+);
+router.get(
+	"/:userID/fetch/all",
+	authMiddleware,
+	checkUserExistence,
+	fetchAllCurriculums
+);
+router.get(
+	"/:userID/fetch/single/:curriculumID",
+	authMiddleware,
+	checkUserExistence,
+	fetchCurriculumByID
 );
 
 //export
