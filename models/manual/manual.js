@@ -40,7 +40,11 @@ const ManualSchema = new Schema(
 		uploadedBy: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
-			required: [true, "Uploaded by is required"],
+			index: true,
+		},
+		updatedBy: {
+			type: Schema.Types.ObjectId,
+			ref: "User",
 			index: true,
 		},
 	},

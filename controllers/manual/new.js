@@ -20,9 +20,7 @@ const { createNotification } = require("../notification/new");
 //the controller
 exports.createManual = async (req, res, next) => {
 	const { name, description } = req.body;
-	const file = req.file;
-	const user = req.user;
-	console.log("User is ", user);
+	const { file, user } = req;
 
 	//Step: validate the request body
 	let errors = [];
@@ -64,10 +62,10 @@ exports.createManual = async (req, res, next) => {
 
 		//create notification
 		const notification = {
-			title: "New Manual",
-			description: `New manual ${name} has been created`,
-			type: "manual",
-			referenceID: manual._id,
+			details: `New manual ${name} has been created`,
+			type: "create",
+			relatedModel: "Manual",
+			relatedModelID: manual._id,
 		};
 
 		req.body = notification;

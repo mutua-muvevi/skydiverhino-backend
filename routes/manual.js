@@ -3,6 +3,8 @@ const router = express.Router();
 
 //controller imports
 const { createManual } = require("../controllers/manual/new");
+const { editManual } = require("../controllers/manual/edit");
+
 
 //middlewares imports
 const { authMiddleware } = require("../middlewares/authentication");
@@ -19,6 +21,13 @@ router.post(
 	upload.single("file"),
 	createManual
 );
+router.put(
+	"/:userID/edit/:manualID",
+	authMiddleware,
+	checkUserExistence,
+	upload.single("file"),
+	editManual
+)
 console.log("No blockage in routes");
 
 //export
