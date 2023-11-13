@@ -10,6 +10,8 @@ const { upload } = require("../utils/multer");
 
 //controllers
 const { createTerm } = require("../controllers/terms/new");
+const { editTerm } = require("../controllers/terms/edit");
+const { deleteTerm } = require("../controllers/terms/delete");
 
 
 //routes
@@ -20,7 +22,19 @@ router.post(
 	upload.single("file"),
 	createTerm
 );
-
+router.put(
+	"/:userID/edit/:termID",
+	authMiddleware,
+	checkUserExistence,
+	upload.single("file"),
+	editTerm
+);
+router.delete(
+	"/:userID/delete/:termID",
+	authMiddleware,
+	checkUserExistence,
+	deleteTerm
+);
 
 
 
