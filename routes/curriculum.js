@@ -10,6 +10,7 @@ const { upload } = require("../utils/multer");
 
 //controllers
 const { createCurriculum } = require("../controllers/curriculum/new");
+const { editCurriculum } = require("../controllers/curriculum/edit");
 
 //routes
 router.post(
@@ -18,6 +19,13 @@ router.post(
 	checkUserExistence,
 	upload.single("file"),
 	createCurriculum
+);
+router.put(
+	"/:userID/edit/:curriculumID",
+	authMiddleware,
+	checkUserExistence,
+	upload.single("file"),
+	editCurriculum
 );
 
 //export
