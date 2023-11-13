@@ -12,6 +12,7 @@ const { upload } = require("../utils/multer");
 const { createManual } = require("../controllers/manual/new");
 const { editManual } = require("../controllers/manual/edit");
 const { deleteManual } = require("../controllers/manual/delete");
+const { fetchAllManuals, fetchManualByID } = require("../controllers/manual/fetch");
 
 //routes
 router.post(
@@ -33,6 +34,18 @@ router.delete(
 	authMiddleware,
 	checkUserExistence,
 	deleteManual
+);
+router.get(
+	"/:userID/fetch/all",
+	authMiddleware,
+	checkUserExistence,
+	fetchAllManuals
+);
+router.get(
+	"/:userID/fetch/single/:manualID",
+	authMiddleware,
+	checkUserExistence,
+	fetchManualByID
 )
 console.log("No blockage in routes");
 
