@@ -4,8 +4,6 @@
  *
  * Fetch All Manuals:
  *
- * Fetch All Manuals for User:
- *
  * Fetch Single Manual:
  *
  */

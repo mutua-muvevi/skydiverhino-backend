@@ -35,7 +35,7 @@ const ManualSchema = new Schema(
 			trim: true,
 		},
 		file: {
-				type: String,
+			type: String,
 		},
 		uploadedBy: {
 			type: Schema.Types.ObjectId,

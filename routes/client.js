@@ -4,6 +4,7 @@ const router = express.Router();
 //middlewares
 const { authMiddleware } = require("../middlewares/authentication");
 const checkUserExistence = require("../middlewares/checkuser");
+
 // controller inputs
 const { createClient } = require("../controllers/client/new");
 const { editClient } = require("../controllers/client/edit");
