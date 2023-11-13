@@ -40,6 +40,7 @@ app.use("/api/client", require("./routes/client"));
 app.use("/api/faq", require("./routes/faq"));
 app.use("/api/booking", require("./routes/booking"));
 app.use("/api/manual", require("./routes/manual"));
+app.use("/api/term", require("./routes/term"));
 console.log("No blockage")
 
 
