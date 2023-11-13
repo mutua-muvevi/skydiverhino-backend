@@ -12,7 +12,7 @@ const { upload } = require("../utils/multer");
 const { createTerm } = require("../controllers/terms/new");
 const { editTerm } = require("../controllers/terms/edit");
 const { deleteTerm } = require("../controllers/terms/delete");
-
+const { fetchAllTerms, fetchTermByID } = require("../controllers/terms/fetch");
 
 //routes
 router.post(
@@ -35,8 +35,18 @@ router.delete(
 	checkUserExistence,
 	deleteTerm
 );
-
-
+router.get(
+	"/:userID/fetch/all",
+	authMiddleware,
+	checkUserExistence,
+	fetchAllTerms
+);
+router.get(
+	"/:userID/fetch/single/:termID",
+	authMiddleware,
+	checkUserExistence,
+	fetchTermByID
+);
 
 //export
 module.exports = router;
