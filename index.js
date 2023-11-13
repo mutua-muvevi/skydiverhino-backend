@@ -16,7 +16,6 @@ const databaseSanitizer = require("./config/databaseSanitizer");
 const app = express();
 const connectDB = require("./config/database");
 const errorHandler = require("./middlewares/error");
-const logger = require("./utils/logger");
 
 //connect to database
 connectDB();
@@ -41,6 +40,7 @@ app.use("/api/faq", require("./routes/faq"));
 app.use("/api/booking", require("./routes/booking"));
 app.use("/api/manual", require("./routes/manual"));
 app.use("/api/term", require("./routes/term"));
+app.use("/api/curriculum", require("./routes/curriculum"));
 console.log("No blockage")
 
 
