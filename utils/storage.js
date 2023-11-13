@@ -5,7 +5,6 @@
  *
  * ### Step-by-step procedure:
  * 1. Configure Google Cloud Storage.
- * 2. Identify file extension and user-specific folder.
  * 3. Upload file to Google Cloud Storage.
  *
  * ### Detailed Explanation:
@@ -26,7 +25,6 @@ const bucket = storage.bucket(process.env.GCP_BUCKET_NAME);
 
 // console.log("The bucket here is ", bucket)
 
-// Step 2: Identify file extension and user-specific folder
 const getFolderByExtension = (extension) => {
 	const mappings = {
 		".jpg": "images",
@@ -69,23 +67,15 @@ const getFolderByExtension = (extension) => {
 	return mappings[extension] || "others";
 };
 // Step 3: Upload file to Google Cloud Storage
-const uploadToGCS = async (file, user) => {
+const uploadToGCS = async (file) => {
 	return new Promise((resolve, reject) => {
 		if (!file) {
 			return reject(new Error("No file provided"));
 		}
 
-		if (!user || !user.fullname) {
-			return reject(
-				new Error("User information is incomplete or not provided")
-			);
-		}
-
 		const extension = path.extname(file.originalname).toLowerCase();
 		const folderName = getFolderByExtension(extension);
-		const newFileName = `${user.fullname}/${folderName}/${Date.now()}-${
-			file.originalname
-		}`;
+		const newFileName = `${folderName}/${Date.now()}-${file.originalname}`;
 
 		let fileUpload = bucket.file(newFileName);
 
@@ -134,13 +124,13 @@ const uploadToGCS = async (file, user) => {
  * - **deleteFromGCS**: Deletes a specified file from Google Cloud Storage.
  * - The old file is deleted only after ensuring the new file is successfully uploaded.
  */
-const updateInGCS = async (oldFileName, file, user) => {
+const updateInGCS = async (oldFileName, file) => {
 	try {
 		// Step 1: Upload the new file
-		const newFileURL = await uploadToGCS(file, user);
+		const newFileURL = await uploadToGCS(file);
 
 		// Step 2: Delete the old file
-		await deleteFromGCS(user, oldFileName);
+		await deleteFromGCS(oldFileName);
 
 		// Step 3: Return the new file's URL
 		return newFileURL;
@@ -164,7 +154,7 @@ const updateInGCS = async (oldFileName, file, user) => {
  * - **file.delete()**: Deletes the referenced file.
  */
 
-const deleteFromGCS = async (user, oldFileName) => {
+const deleteFromGCS = async (oldFileName) => {
 	if (!oldFileName || typeof oldFileName !== "string") {
 		throw new Error("No filename provided or is not a valid string");
 	}
@@ -172,7 +162,7 @@ const deleteFromGCS = async (user, oldFileName) => {
 	const extension = path.extname(oldFileName).toLowerCase();
 	const folderName = getFolderByExtension(extension);
 
-	const fullPath = `${user.fullname}/${folderName}/${oldFileName}`;
+	const fullPath = `${folderName}/${oldFileName}`;
 	const file = bucket.file(fullPath);
 
 	try {

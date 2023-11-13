@@ -36,7 +36,7 @@ const requestMiddleware = (req, res, next) => {
 		};
 
 		logger.info(req.userDetails);
-console.log("User details in request is", req.userDetails)
+		
 		// 2. Extracting IP address (handling cases with multiple proxies)
 		const ip =
 			(req.headers["x-forwarded-for"] || "").split(",").pop().trim() ||

@@ -39,31 +39,14 @@ app.use("/api/service", require("./routes/service"));
 app.use("/api/client", require("./routes/client"));
 app.use("/api/faq", require("./routes/faq"));
 app.use("/api/booking", require("./routes/booking"));
+app.use("/api/manual", require("./routes/manual"));
+console.log("No blockage")
 
 
 //error middleware
 app.use(errorHandler);
 
 // port connection
-const PORT = process.env.PORT || 5000
-app.listen(PORT, () => logger.info(`Connected to port ${PORT}`))
-
-
-
-// process termination after unhandles promise rejection
-process.on("unhandledRejection", (error, promise) => {
-	if(error){
-		logger.error(`Unhandled Promise Rejection Error :${JSON.stringify(error)}`)
-		process.exit(1)
-	} else {
-		logger.info(`Unhandled Promise Rejection Promise :${JSON.stringify(promise)}`)
-	}
-})
-// console.log("No blockage");
-
-// server error check
-app.on("error", (err) => {
-	logger.error("Express server error:", err);
-});
-
 module.exports = app;
+
+require("./config/port")

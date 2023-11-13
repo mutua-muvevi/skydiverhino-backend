@@ -1,3 +1,5 @@
 config.env
 node_modules/
 logs/
+gcpkey.json
+googleclient.json
