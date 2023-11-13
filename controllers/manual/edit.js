@@ -102,10 +102,10 @@ exports.editManual = async (req, res, next) => {
 		res.status(200).json({
 			success: true,
 			data: manual,
-			message: "Manual created successfully",
+			message: "Manual edited successfully",
 		});
 
-		logger.info(`createManual Controller Execution time: ${end - start} ms.`);
+		logger.info(`editManual Controller Execution time: ${end - start} ms.`);
 	} catch (error) {
 		logger.error(`Error in editManual Controller: ${error}`);
 		next(error);
