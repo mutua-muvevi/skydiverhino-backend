@@ -11,6 +11,7 @@ const { upload } = require("../utils/multer");
 //controllers
 const { createCurriculum } = require("../controllers/curriculum/new");
 const { editCurriculum } = require("../controllers/curriculum/edit");
+const { deleteCurriculum } = require("../controllers/curriculum/delete");
 
 //routes
 router.post(
@@ -26,6 +27,12 @@ router.put(
 	checkUserExistence,
 	upload.single("file"),
 	editCurriculum
+);
+router.delete(
+	"/:userID/delete/:curriculumID",
+	authMiddleware,
+	checkUserExistence,
+	deleteCurriculum
 );
 
 //export
