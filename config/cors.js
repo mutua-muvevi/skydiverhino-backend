@@ -5,13 +5,13 @@ const cors = require("cors");
 const whitelist = ["http://example1.com", "http://example2.com"]; 
 
 const corsOptions = {
-	origin: (origin, callback) => {
-		if (whitelist.indexOf(origin) !== -1 || !origin) {
-			callback(null, true);
-		} else {
-			callback(new Error("Not allowed by CORS"));
-		}
-	},
+	// origin: (origin, callback) => {
+	// 	if (whitelist.indexOf(origin) !== -1 || !origin) {
+	// 		callback(null, true);
+	// 	} else {
+	// 		callback(new Error("Not allowed by CORS"));
+	// 	}
+	// },
 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 	allowedHeaders: [
 		"Content-Type",

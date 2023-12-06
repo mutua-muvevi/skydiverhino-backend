@@ -14,6 +14,7 @@
 
 const { Storage } = require("@google-cloud/storage");
 const path = require("path");
+const { extensionMappings } = require("../config/extensionMapping");
 
 // Step 1: Configure Google Cloud Storage
 const storage = new Storage({
@@ -26,45 +27,7 @@ const bucket = storage.bucket(process.env.GCP_BUCKET_NAME);
 // console.log("The bucket here is ", bucket)
 
 const getFolderByExtension = (extension) => {
-	const mappings = {
-		".jpg": "images",
-		".jpeg": "images",
-		".png": "images",
-
-		".mp4": "videos",
-		".mkv": "videos",
-		".flv": "videos",
-		".avi": "videos",
-		".mov": "videos",
-
-		".mp3": "audio",
-		".m4a": "audio",
-
-		".pdf": "documents",
-		".doc": "documents",
-		".docx": "documents",
-		".txt": "documents",
-		".xls": "documents",
-		".xlsx": "documents",
-		".ppt": "documents",
-		".pptx": "documents",
-
-		".ai": "designs",
-
-		".py": "code",
-		".js": "code",
-		".ts": "code",
-		".json": "code",
-		".jsx": "code",
-		".java": "code",
-		".c": "code",
-		".html": "code",
-		".htm": "code",
-		".css": "code",
-		// ... add more mappings as needed
-	};
-
-	return mappings[extension] || "others";
+	return extensionMappings[extension] || "others";
 };
 // Step 3: Upload file to Google Cloud Storage
 const uploadToGCS = async (file) => {
@@ -173,8 +136,85 @@ const deleteFromGCS = async (oldFileName) => {
 	}
 };
 
+
+//get storage details
+const getStorageDetails = async (fullname) => {
+	try {
+		const [files] = await bucket.getFiles();
+		return files;
+	} catch (error) {
+		console.error("Error fetching storage details:", error);
+		throw error;
+	}
+};
+
+const calculateStorageUsage = (files) => {
+	const storageData = {};
+
+	files.forEach((file) => {
+		const folder = file.name.split("/")[1];
+		const fileSize = parseInt(file.metadata.size, 10) || 0;
+		const uploadedDate = file.metadata.timeCreated;
+
+		if (!storageData[folder]) {
+			storageData[folder] = { files: [], size: 0 };
+		}
+
+		storageData[folder].files.push({
+			number: storageData[folder].files.length + 1,
+			file: `https://storage.googleapis.com/${bucketName}/${file.name}`,
+			size: fileSize,
+			uploaded: new Date(uploadedDate).toISOString(),
+		});
+
+		storageData[folder].size += fileSize;
+	});
+
+	return storageData;
+};
+
+//Step: download file from GCS
+
+/**
+ * Downloads a file from Google Cloud Storage.
+ * @param {string} filename The name of the file to be downloaded.
+ * @param {Object} user The user object containing user-specific details.
+ * @returns {Promise<stream.Readable>} A readable stream of the file.
+ */
+const downloadFromGCS = async (user, filename) => {
+	if (!filename) {
+		throw new Error("Filename is required");
+	}
+
+	if (!user) {
+		throw new Error("User information is incomplete or not provided");
+	}
+
+	const extension = path.extname(filename).toLowerCase();
+	const folderName = getFolderByExtension(extension);
+
+	const fullPath = `${folderName}/${filename}`;
+	const file = bucket.file(fullPath);
+
+	try {
+		const exists = await file.exists();
+		if (!exists[0]) {
+			throw new Error("File does not exist in GCS");
+		}
+
+		const readStream = file.createReadStream();
+		return readStream;
+	} catch (error) {
+		throw new Error(`Error in downloading from GCS: ${error.message}`);
+	}
+};
+
 module.exports = {
 	uploadToGCS,
 	updateInGCS,
 	deleteFromGCS,
+	downloadFromGCS,
+
+	getStorageDetails,
+	calculateStorageUsage,
 };

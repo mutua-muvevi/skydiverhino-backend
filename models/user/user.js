@@ -83,12 +83,50 @@ const UserSchema = new Schema(
 				ref: "Notification",
 			},
 		],
+
+		
+		storage: {},
+		totalStorage: {
+			type: Number,
+			default: 0,
+		},
 		
 		resetPasswordToken: String,
 		resetPasswordExpiry: Date,
 	},
 	MainSchemaOptions
 );
+
+
+// Middleware to update totalStorage field in User schema
+UserSchema.pre("save", function (next) {
+	try {
+		if (this.isModified("storage")) {
+			let totalStorageSize = 0;
+	
+			// Iterate over each category in storage
+			Object.values(this.storage).forEach((category) => {
+				if (category.files && Array.isArray(category.files)) {
+					// Sum the size of all files in the category
+					totalStorageSize += category.files.reduce(
+						(sum, file) => sum + (file.size || 0),
+						0
+					);
+				}
+			});
+	
+			// Update the totalStorage field
+			this.totalStorage = totalStorageSize;
+		}
+	
+		next();
+		
+	} catch (error) {
+		logger.error(`Error in user shcema storage update: ${error}`);
+		next(error);
+		
+	}
+});
 
 //model
 const User = mongoose.model("User", UserSchema);

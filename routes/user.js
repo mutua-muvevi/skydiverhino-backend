@@ -26,7 +26,7 @@ router.post("/resetpassword/:resetToken", resetpassword);
 router.post("/otp", verifyOTP);
 
 //fetch routes
-router.get("/fetch/me", authMiddleware, checkUserExistence, getMe, fetchMe);
+router.get("/fetch/me", authMiddleware, getMe, fetchMe);
 
 //edit routes
 router.put("/edit/me/:userID", authMiddleware, checkUserExistence, editUser);
