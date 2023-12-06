@@ -20,12 +20,13 @@ const { performance } = require("perf_hooks");
 const User = require("../models/user/user");
 const ErrorResponse = require("../utils/errorResponse");
 const logger = require("../utils/logger");
+const { populateUser } = require("../config/populateUser");
 
 const invalidJWT = "Invalid User";
 
 exports.getMe = async (req, res, next) => {
 	try {
-		console.log("The request is", req)
+		console.log("The request is", req);
 		// Step 1: Extract JWT from the request
 		const { jwt } = req;
 
@@ -34,13 +35,15 @@ exports.getMe = async (req, res, next) => {
 			logger.error("JWT not provided");
 			return next(new ErrorResponse(invalidJWT, 401));
 		}
-		
+
 		const userID = jwt.userId;
 
 		// Step 3: Fetch the user data from the database
 		const start = performance.now();
 
-		const user = await User.findById(userID).select("-salt -hash -imageID");
+		const user = await User.findById(userID)
+			.select("-salt -hash -imageID")
+			.populate(populateUser);
 
 		const end = performance.now();
 
