@@ -23,6 +23,7 @@ const storage = new Storage({
 });
 
 const bucket = storage.bucket(process.env.GCP_BUCKET_NAME);
+const bucketName = process.env.GCP_BUCKET_NAME;
 
 // console.log("The bucket here is ", bucket)
 
@@ -136,7 +137,6 @@ const deleteFromGCS = async (oldFileName) => {
 	}
 };
 
-
 //get storage details
 const getStorageDetails = async () => {
 	try {
@@ -152,21 +152,31 @@ const calculateStorageUsage = (files) => {
 	const storageData = {};
 
 	files.forEach((file) => {
-		const folder = file.name.split("/")[1];
-		const fileSize = parseInt(file.metadata.size, 10) || 0;
-		const uploadedDate = file.metadata.timeCreated;
+		// Correct the way the folder is extracted from the file name.
+		// Assuming the first part of the file name before the first '/' is the folder name.
+		const folder = file.name.split("/")[0]; // Changed from [1] to [0]
 
+		// It's good to have defensive programming here to handle any unexpected cases.
+		if (!folder) return;
+
+		const fileSize = parseInt(file.metadata.size, 10) || 0;
+
+		// Ensure that a folder entry exists in storageData.
 		if (!storageData[folder]) {
 			storageData[folder] = { files: [], size: 0 };
 		}
 
+		// Construct the file URL correctly.
+		const fileUrl = `https://storage.googleapis.com/${file.bucket.name}/${file.name}`;
+
 		storageData[folder].files.push({
 			number: storageData[folder].files.length + 1,
-			file: `https://storage.googleapis.com/${bucketName}/${file.name}`,
+			file: fileUrl,
 			size: fileSize,
-			uploaded: new Date(uploadedDate).toISOString(),
+			uploaded: new Date(file.metadata.timeCreated).toISOString(),
 		});
 
+		// Accumulate the file size to the folder's total size.
 		storageData[folder].size += fileSize;
 	});
 

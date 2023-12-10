@@ -72,6 +72,19 @@ const ParticipantsSchema = new Schema(
 	},
 );
 
+//Agreements Schema
+const AgreementSchema = new Schema({
+	above18Years: {
+		type: Boolean,
+		default: false,
+		index: true,
+	},
+	termsAndConditions: {
+		type: Boolean,
+		default: false,
+		index: true,
+	},
+})
 
 //schema
 const BookingSchema = new Schema(
@@ -82,7 +95,7 @@ const BookingSchema = new Schema(
 			index: true,
 		},
 		participants: [ParticipantsSchema],
-		agreements: [],
+		agreements: [AgreementSchema],
 	}, SchemaOptions
 );
 

@@ -30,7 +30,7 @@ exports.fetchStorage = async (req, res, next) => {
 		//send a success response back to the client with the list of expenses
 		res.status(200).json({
 			success: true,
-			storage
+			data: storage
 		});
 		
 		const end = performance.now();
