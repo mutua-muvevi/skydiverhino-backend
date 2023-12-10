@@ -1,11 +1,10 @@
 /**
- * 
  * @api {post} /api/storage/new Add a new file
  * @apiName AddNewFile
  * @apiGroup Storage
  * @apiPermission user
  * @apiParam {String} file The file to be uploaded
- * 
+ *
  * ADDING A NEW FILE
  * ===========================================
  * This controller is responsible for adding a new file to the database.
@@ -18,8 +17,9 @@
  *
  */
 
-//imports
+// Imports
 const mongoose = require("mongoose");
+const Storage = require("../../models/storage/storage");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const {
@@ -29,11 +29,11 @@ const {
 } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
-//the controller
+// The controller
 exports.addNewFile = async (req, res, next) => {
 	const { user, file } = req;
 
-	//Step: validate the request body
+	// Step: Validate the request body
 	let errors = [];
 
 	if (!file) {
@@ -54,10 +54,10 @@ exports.addNewFile = async (req, res, next) => {
 	try {
 		const start = performance.now();
 
-		//Step: upload file to GCS
+		// Step: Upload file to GCS
 		const startUpload = performance.now();
 
-		const uploadedFile = await uploadToGCS(file, user);
+		const uploadedFile = await uploadToGCS(file);
 
 		if (!uploadedFile) {
 			logger.error(`Error uploading file in Add new File`);
@@ -66,17 +66,15 @@ exports.addNewFile = async (req, res, next) => {
 
 		const endUpload = performance.now();
 
-		//update the storage data in the user
-		const files = await getStorageDetails(user.fullname);
+		// Save the file to the database
+		const newStorage = await new Storage({
+			user: user._id,
+			storage: uploadedFile,
+		}).save();
 
-		const storage = calculateStorageUsage(files);
-
-		user.storage = storage;
-		await user.save();
-
-		//create notification
+		// Create notification
 		const notification = {
-			details: `File was added to user sucessfully`,
+			details: `File was added to user successfully`,
 			createdBy: user._id,
 			type: "add",
 			relatedModel: "User",
@@ -86,7 +84,7 @@ exports.addNewFile = async (req, res, next) => {
 		req.body = notification;
 		await createNotification(req, res, next);
 
-		//send the response
+		// Send the response
 		res.status(201).json({
 			success: true,
 			message: "File added successfully",

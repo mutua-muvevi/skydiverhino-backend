@@ -138,7 +138,7 @@ const deleteFromGCS = async (oldFileName) => {
 
 
 //get storage details
-const getStorageDetails = async (fullname) => {
+const getStorageDetails = async () => {
 	try {
 		const [files] = await bucket.getFiles();
 		return files;

@@ -42,6 +42,7 @@ app.use("/api/manual", require("./routes/manual"));
 app.use("/api/term", require("./routes/term"));
 app.use("/api/curriculum", require("./routes/curriculum"));
 app.use("/api/voicemail", require("./routes/voicemail"));
+app.use("/api/storage", require("./routes/storage"));
 console.log("No blockage")
 
 
