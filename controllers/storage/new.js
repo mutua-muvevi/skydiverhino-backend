@@ -6,7 +6,7 @@
  * @apiParam {String} file The file to be uploaded
  *
  * ADDING A NEW FILE
- * ===========================================
+ * ==============================================
  * This controller is responsible for adding a new file to the database.
  *
  * Steps:
@@ -22,11 +22,7 @@ const mongoose = require("mongoose");
 const Storage = require("../../models/storage/storage");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const {
-	uploadToGCS,
-	calculateStorageUsage,
-	getStorageDetails,
-} = require("../../utils/storage");
+const { uploadToGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 // The controller
@@ -67,7 +63,7 @@ exports.addNewFile = async (req, res, next) => {
 		const endUpload = performance.now();
 
 		// Save the file to the database
-		const newStorage = await new Storage({
+		await new Storage({
 			user: user._id,
 			storage: uploadedFile,
 		}).save();

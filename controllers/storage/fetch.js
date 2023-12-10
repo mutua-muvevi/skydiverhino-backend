@@ -4,6 +4,7 @@
  */
 
 //package import
+const Storage = require("../../models/storage/storage");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { calculateStorageUsage, getStorageDetails } = require("../../utils/storage");
@@ -17,16 +18,14 @@ exports.fetchStorage = async (req, res, next) => {
 
 		if(!user){
 			return next(new ErrorResponse("You are not Authorized", 401));
+		};
+
+		//fetc storage
+		const storage = await Storage.find();
+
+		if(!storage){
+			return next(new ErrorResponse("No storage", 404));
 		}
-		
-		const { fullname } = user;
-
-		const files  = await getStorageDetails(fullname);
-
-		const storage = calculateStorageUsage(files)
-		
-		user.storage = storage;
-		await user.save();
 		
 		//send a success response back to the client with the list of expenses
 		res.status(200).json({
