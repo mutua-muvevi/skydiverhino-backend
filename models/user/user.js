@@ -84,9 +84,11 @@ const UserSchema = new Schema(
 			},
 		],
 
-		storage: {
-			type: Schema.Types.ObjectId,
-			ref: "Storage",
+		//storage
+		storage: {},
+		totalStorage: {
+			type: Number,
+			default: 0,
 		},
 
 		resetPasswordToken: String,
@@ -96,7 +98,33 @@ const UserSchema = new Schema(
 );
 
 
+//middleware for storage
+UserSchema.pre("save", async function (next) {
+	try {
+		if (this.isModified("storage")) {
+			let totalStorageSize = 0;
 
+			// Iterate over each category in storage
+			Object.values(this.storage).forEach((category) => {
+				if (category.files && Array.isArray(category.files)) {
+					// Sum the size of all files in the category
+					totalStorageSize += category.files.reduce(
+						(sum, file) => sum + (file.size || 0),
+						0
+					);
+				}
+			});
+
+			// Update the totalStorage field
+			this.totalStorage = totalStorageSize;
+		}
+
+		next();
+	} catch (error) {
+		logger.error(`Error in user shcema storage update: ${error}`);
+		next(error);
+	}
+});
 
 //model
 const User = mongoose.model("User", UserSchema);

@@ -22,7 +22,7 @@ const mongoose = require("mongoose");
 const Storage = require("../../models/storage/storage");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const { uploadToGCS } = require("../../utils/storage");
+const { uploadToGCS, getStorageDetails, calculateStorageUsage } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 // The controller
@@ -62,11 +62,20 @@ exports.addNewFile = async (req, res, next) => {
 
 		const endUpload = performance.now();
 
+		//update the storage data in the user
+		const files = await getStorageDetails();
+
+		const storage = calculateStorageUsage(files);
+
 		// Save the file to the database
 		await new Storage({
 			user: user._id,
-			storage: uploadedFile,
+			file: uploadedFile,
 		}).save();
+
+		//saving file to user
+		user.storage = storage;
+		await user.save();
 
 		// Create notification
 		const notification = {
@@ -84,6 +93,7 @@ exports.addNewFile = async (req, res, next) => {
 		res.status(201).json({
 			success: true,
 			message: "File added successfully",
+			storage
 		});
 
 		const end = performance.now();

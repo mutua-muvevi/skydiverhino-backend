@@ -19,6 +19,7 @@ const mongoose = require("mongoose");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { downloadFromGCS } = require("../../utils/storage");
+const Storage = require("../../models/storage/storage");
 
 //the controller
 exports.downloadFile = async (req, res, next) => {
@@ -47,8 +48,10 @@ exports.downloadFile = async (req, res, next) => {
 		const start = performance.now();
 
 		// Step: Find the file in user's storage
+		const storage = user.storage;
+
 		let fileFound = false;
-		for (const folder in user.storage) {
+		for (const folder in storage) {
 			if (
 				user.storage[folder].files.some((file) =>
 					file.file.endsWith(filename)
