@@ -10,7 +10,6 @@ const { fetchStorage } = require("../controllers/storage/fetch");
 const { addNewFile } = require("../controllers/storage/new");
 const { deleteFile } = require("../controllers/storage/delete");
 const { downloadFile } = require("../controllers/storage/download");
-console.log("The storage in routes");
 
 //routes
 router.get(
@@ -21,7 +20,7 @@ router.get(
 );
 
 router.post(
-	"/:userID/new",
+	"/:userID/upload",
 	authMiddleware,
 	checkUserExistence,
 	upload.single("file"),

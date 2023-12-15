@@ -26,7 +26,6 @@ const invalidJWT = "Invalid User";
 
 exports.getMe = async (req, res, next) => {
 	try {
-		console.log("The request is", req);
 		// Step 1: Extract JWT from the request
 		const { jwt } = req;
 

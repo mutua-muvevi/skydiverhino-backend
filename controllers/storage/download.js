@@ -48,7 +48,7 @@ exports.downloadFile = async (req, res, next) => {
 		const start = performance.now();
 
 		// Step: Find the file in user's storage
-		const storage = await Storage.find();
+		const storage = user.storage;
 
 		let fileFound = false;
 		for (const folder in storage) {
