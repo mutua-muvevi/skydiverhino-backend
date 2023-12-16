@@ -163,6 +163,74 @@ exports.editDetail = async (req, res, next) => {
 // 4. Save the service
 // 5. Log the success
 
+//controller
+exports.deleteSingleDetail = async (req, res, next) => {
+	const serviceID = req.params.serviceID;
+	const detailID = req.params.detailID;
+	const user = req.user;
+
+	//Step: Validate the request body
+	const errors = [];
+
+	if (!serviceID || !mongoose.isValidObjectId(serviceID))
+		errors.push("Service ID is required and must be a valid ID");
+
+	if (!detailID || !mongoose.isValidObjectId(detailID))
+		errors.push("Detail ID is required and must be a valid ID");
+
+	if (errors.length > 0) {
+		logger.warn(
+			`Validation error in DeleteSingleDetail Controller: ${errors.join(
+				", "
+			)}`
+		);
+		return next(new ErrorResponse(errors.join(", "), 400));
+	}
+
+	try {
+		//Step: Find the service
+		const service = await Service.findById(serviceID);
+
+		if (!service) {
+			logger.warn(
+				`Service not found in DeleteSingleDetail Controller: ${serviceID}`
+			);
+			return next(new ErrorResponse("Service not found", 404));
+		}
+
+		//Step: Find the detail
+		const detail = service.details.id(detailID);
+
+		if (!detail) {
+			logger.warn(
+				`Detail not found in DeleteSingleDetail Controller: ${detailID}`
+			);
+			return next(new ErrorResponse("Detail not found", 404));
+		}
+
+		//Step: Delete the detail
+		service.details.remove(detailID);
+
+		//Step: Save the service
+		await service.save();
+
+		//Step: Log the success
+		logger.info(
+			`DeleteSingleDetail Controller success: ${user.email} deleted a detail in ${service.name}`
+		);
+
+		//Step: Send the response
+		res.status(200).json({
+			success: true,
+			message: "Detail deleted successfully",
+			data: service,
+		});
+	} catch (error) {
+		logger.error(`DeleteSingleDetail Controller error: ${error.message}`);
+		next(error);
+	}
+};
+
 //DELETE MANY DETAILS CONTROLLER
 //-----------------------------------------------------------------
 // Steps
@@ -172,3 +240,75 @@ exports.editDetail = async (req, res, next) => {
 // 4. Delete the details
 // 5. Save the service
 // 6. Log the success
+
+//controller
+exports.deleteManyDetails = async (req, res, next) => {
+	const serviceID = req.params.serviceID;
+	const detailIDs = req.body.detailIDs;
+	const user = req.user;
+
+	//Step: Validate the request body
+	const errors = [];
+
+	if (!serviceID || !mongoose.isValidObjectId(serviceID))
+		errors.push("Service ID is required and must be a valid ID");
+
+	if (!detailIDs || !Array.isArray(detailIDs))
+		errors.push("Detail IDs is required and must be an array");
+
+	if (errors.length > 0) {
+		logger.warn(
+			`Validation error in DeleteManyDetails Controller: ${errors.join(
+				", "
+			)}`
+		);
+		return next(new ErrorResponse(errors.join(", "), 400));
+	}
+
+	try {
+		//Step: Find the service
+		const service = await Service.findById(serviceID);
+
+		if (!service) {
+			logger.warn(
+				`Service not found in DeleteManyDetails Controller: ${serviceID}`
+			);
+			return next(new ErrorResponse("Service not found", 404));
+		}
+
+		//Step: Find the details
+		const details = service.details.filter((detail) =>
+			detailIDs.includes(detail._id.toString())
+		);
+
+		if (details.length === 0) {
+			logger.warn(
+				`Details not found in DeleteManyDetails Controller: ${detailIDs.join(
+					", "
+				)}`
+			);
+			return next(new ErrorResponse("Details not found", 404));
+		}
+
+		//Step: Delete the details
+		details.forEach((detail) => service.details.remove(detail._id));
+
+		//Step: Save the service
+		await service.save();
+
+		//Step: Log the success
+		logger.info(
+			`DeleteManyDetails Controller success: ${user.email} deleted details in ${service.name}`
+		);
+
+		//Step: Send the response
+		res.status(200).json({
+			success: true,
+			message: "Details deleted successfully",
+			data: service,
+		});
+	} catch (error) {
+		logger.error(`DeleteManyDetails Controller error: ${error.message}`);
+		next(error);
+	}
+};

@@ -18,7 +18,7 @@ const {
 } = require("../controllers/service/delete");
 
 //details controller inputs
-const { addDetail, editDetail } = require("../controllers/service/details");
+const { addDetail, editDetail, deleteSingleDetail, deleteManyDetails } = require("../controllers/service/details");
 
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
@@ -65,6 +65,18 @@ router.put(
 	authMiddleware,
 	checkUserExistence,
 	editDetail
+);
+router.delete(
+	"/:userID/:serviceID/details/delete/single/:detailID",
+	authMiddleware,
+	checkUserExistence,
+	deleteSingleDetail
+);
+router.delete(
+	"/:userID/:serviceID/details/delete/many",
+	authMiddleware,
+	checkUserExistence,
+	deleteManyDetails
 );
 
 module.exports = router;
