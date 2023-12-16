@@ -21,6 +21,7 @@ const { createNotification } = require("../notification/new");
 // controller
 exports.createBooking = async (req, res, next) => {
 	const { date, participants, agreements } = req.body;
+	console.log("Booking Body", req.body)
 
 	//Step: validate the request body
 	let errors = [];
@@ -40,15 +41,18 @@ exports.createBooking = async (req, res, next) => {
 		const start = performance.now();
 
 		//create the booking
-		const booking = new Booking({
+		const booking = await Booking.create({
 			date,
 			participants,
 			agreements,
 		});
-
-		//save the booking
-		await booking.save();
-
+		
+		if(!booking) {
+			logger.warn(`Booking not created`);
+			return next(new ErrorResponse(`Booking not created`, 400));
+		}
+		
+		
 		//create notification
 		const notification = {
 			details: `Booking created by succsessfully`,
@@ -56,7 +60,9 @@ exports.createBooking = async (req, res, next) => {
 			relatedModel: "Booking",
 			relatedModelID: booking._id
 		};
-
+		// return res.send(booking)
+		// console.log("Booking", booking)
+		
 		req.body = notification;
 		await createNotification(req, res, next);
 
