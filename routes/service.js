@@ -23,6 +23,9 @@ const { addDetail, editDetail, deleteSingleDetail, deleteManyDetails } = require
 //requirement controller inputs
 const { addRequirement, editRequirement, deleteSingleRequirement, deleteManyRequirements } = require("../controllers/service/requirement");
 
+//price controller inputs
+const { addPrice, editPrice, deleteSinglePrice, deleteManyPrices } = require("../controllers/service/prices");
+
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
 router.put(
@@ -106,6 +109,32 @@ router.delete(
 	authMiddleware,
 	checkUserExistence,
 	deleteManyRequirements
+);
+
+//price controller
+router.put(
+	"/:userID/:serviceID/price/add",
+	authMiddleware,
+	checkUserExistence,
+	addPrice
+);
+router.put(
+	"/:userID/:serviceID/price/edit/:priceID",
+	authMiddleware,
+	checkUserExistence,
+	editPrice
+);
+router.delete(
+	"/:userID/:serviceID/price/delete/single/:priceID",
+	authMiddleware,
+	checkUserExistence,
+	deleteSinglePrice
+);
+router.delete(
+	"/:userID/:serviceID/price/delete/many",
+	authMiddleware,
+	checkUserExistence,
+	deleteManyPrices
 );
 
 module.exports = router;
