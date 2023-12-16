@@ -305,7 +305,7 @@ exports.deleteManyRequirements = async (req, res, next) => {
 
 		//Step: Log the success
 		logger.info(
-			`DeleteManyRequirements Controller success: ${user.email} deleted requirements in ${service.name}`
+			`DeleteManyRequirements Controller success: ${user.fullname} deleted requirements in ${service.name} user `
 		);
 		res.status(200).json({
 			success: true,
