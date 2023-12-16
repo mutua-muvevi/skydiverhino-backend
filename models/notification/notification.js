@@ -61,7 +61,9 @@ const NotificationSchema = new Schema(
 					"Manual",
 					"Term",
 					"Curriculum",
-					"Voicemail"
+					"Voicemail",
+
+					"Reservation",
 				],
 				message: "{VALUE} is not supported",
 			},

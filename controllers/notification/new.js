@@ -33,17 +33,13 @@ exports.createNotification = async (req, res, next) => {
 		const start = performance.now();
 
 		//Step 2: Create and save a new notification
-		const notification = await Notification.create({
+		await Notification.create({
 			details,
 			type,
 			relatedModel,
 			relatedModelID,
-			createdBy: user._id,
+			createdBy: user ? user._id : null,
 		});
-
-		// Step 3: Pushing the notification to the user
-		user.notifications.push(notification._id);
-		await user.save();
 
 		const end = performance.now();
 
@@ -53,6 +49,6 @@ exports.createNotification = async (req, res, next) => {
 
 	} catch (error) {
 		logger.error(`CreateNotification Controller: ${error}`);
-		next(error)
+		return next(error)
 	}
 }
