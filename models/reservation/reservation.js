@@ -1,5 +1,5 @@
 /**
- * Booking model
+ * Reservation model
  * ====================
  * This is the model for the client collection in the database
  *
@@ -11,7 +11,7 @@ const { Schema } = mongoose;
 //schema options
 const SchemaOptions = {
 	timestamps: true,
-	collection: "Booking",
+	collection: "Reservation",
 	optimisticConcurrency: true,
 };
 
@@ -87,7 +87,7 @@ const AgreementSchema = new Schema({
 })
 
 //schema
-const BookingSchema = new Schema(
+const ReservationSchema = new Schema(
 	{
 		date: {
 			type: Date,
@@ -100,7 +100,7 @@ const BookingSchema = new Schema(
 );
 
 //the model
-const Booking = mongoose.model("Booking", BookingSchema);
+const Reservation = mongoose.model("Reservation", ReservationSchema);
 
 //export the model
-module.exports = Booking;
+module.exports = Reservation;
