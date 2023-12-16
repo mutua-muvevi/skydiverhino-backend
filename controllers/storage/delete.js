@@ -76,7 +76,7 @@ exports.deleteFile = async (req, res, next) => {
 		//Step: delete the storage
 		const startDelete = performance.now();
 
-		const deletedFile = await deleteFromGCS(user, filename);
+		const deletedFile = await deleteFromGCS(filename);
 
 		if (!deletedFile) {
 			return next(new ErrorResponse("File not found", 404));
