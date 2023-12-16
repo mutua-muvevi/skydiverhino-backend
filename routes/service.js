@@ -26,6 +26,9 @@ const { addRequirement, editRequirement, deleteSingleRequirement, deleteManyRequ
 //price controller inputs
 const { addPrice, editPrice, deleteSinglePrice, deleteManyPrices } = require("../controllers/service/prices");
 
+//faq controller inputs
+const { addFAQ, editFAQ, deleteSingleFAQ, deleteManyFAQs } = require("../controllers/service/faq");
+
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
 router.put(
@@ -135,6 +138,32 @@ router.delete(
 	authMiddleware,
 	checkUserExistence,
 	deleteManyPrices
+);
+
+//faq controller
+router.put(
+	"/:userID/:serviceID/faq/add",
+	authMiddleware,
+	checkUserExistence,
+	addFAQ
+);
+router.put(
+	"/:userID/:serviceID/faq/edit/:faqID",
+	authMiddleware,
+	checkUserExistence,
+	editFAQ
+);
+router.delete(
+	"/:userID/:serviceID/faq/delete/single/:faqID",
+	authMiddleware,
+	checkUserExistence,
+	deleteSingleFAQ
+);
+router.delete(
+	"/:userID/:serviceID/faq/delete/many",
+	authMiddleware,
+	checkUserExistence,
+	deleteManyFAQs
 );
 
 module.exports = router;
