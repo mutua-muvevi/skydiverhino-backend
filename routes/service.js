@@ -11,6 +11,9 @@ const { editService } = require("../controllers/service/edit");
 const { fetchAllServices, fetchServiceByID } = require("../controllers/service/fetch");
 const { deleteSingleService, deleteManyServices } = require("../controllers/service/delete");
 
+//details controller inputs
+const { addDetail } = require("../controllers/service/details");
+
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
 router.put(
@@ -43,5 +46,8 @@ router.delete(
 	checkUserExistence,
 	deleteManyServices
 );
+
+//details routes
+router.post("/:userID/:serviceID/details/add", authMiddleware, checkUserExistence, addDetail);
 
 module.exports = router;
