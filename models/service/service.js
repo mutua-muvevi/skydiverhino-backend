@@ -22,12 +22,14 @@ const DescriptionBlockSchema = new Schema({
 		minLength: [4, "Minimum characters required for title is 4"],
 		maxLength: [100, "Maximum characters required for title is 100"],
 		trim: true,
+		required: [true, "Title is required"],
 	},
 	details: {
 		type: String,
 		minLength: [20, "Minimum characters required for details is 20"],
 		maxLength: [1000, "Maximum characters required for details is 1000"],
 		trim: true,
+		required: [true, "Content details is required"],
 	},
 	image: {
 		type: String
@@ -41,12 +43,14 @@ const RequirementSchema = new Schema({
 		minLength: [4, "Minimum characters required for title is 4"],
 		maxLength: [100, "Maximum characters required for title is 100"],
 		trim: true,
+		required: [true, "Requirement title is required"],
 	},
 	details: {
 		type: String,
 		minLength: [20, "Minimum characters required for details is 20"],
 		maxLength: [1000, "Maximum characters required for details is 1000"],
 		trim: true,
+		required: [true, "Requirement details is required"],
 	},
 });
 
@@ -60,18 +64,20 @@ const PricingSchema = new Schema({
 	},
 	listItems: {
 		type: [String],
-		minLength: [1, "Minimum characters required for list item is 1"],
-		maxLength: [100, "Maximum characters required for list item is 100"],
+		minLength: [1, "Minimum items required for list item is 1"],
+		maxLength: [100, "Maximum items required for list item is 100"],
 		trim: true,
 	},
-	pricing: {
+	price: {
 		amount: {
 			type: Number,
 			min: [0, "Price cannot be negative"],
+			required: [true, "Price is required"],
 		},
 		currency: {
 			type: String,
 			enum: ["USD", "EUR", "GBP", "NGN"],
+			required: [true, "Currency is required"],
 		},
 	},
 	image: {
@@ -79,6 +85,24 @@ const PricingSchema = new Schema({
 	}
 });
 
+
+//faq subschema
+const FAQSchema = new Schema({
+	question: {
+		type: String,
+		minLength: [4, "Minimum characters required for question is 4"],
+		maxLength: [100, "Maximum characters required for question is 100"],
+		trim: true,
+		required: [true, "Question is required"],
+	},
+	answer: {
+		type: String,
+		minLength: [20, "Minimum characters required for answer is 20"],
+		maxLength: [1000, "Maximum characters required for answer is 1000"],
+		trim: true,
+		required: "Answer is required",
+	},
+});
 
 //the schema
 const ServiceSchema = new Schema(
@@ -90,21 +114,23 @@ const ServiceSchema = new Schema(
 			trim: true,
 			index: true,
 		},
-		details: {
+		shortDescription: {
 			type: String,
-			minLength: [20, "Minimum characters required for details is 20"],
-			maxLength: [
-				1000,
-				"Maximum characters required for details is 1000",
-			],
+			minLength: [20, "Minimum characters required for short description is 20"],
+			maxLength: [250, "Maximum characters required for short description is 250"],
 			trim: true,
 		},
+		details: [DescriptionBlockSchema],
+		requirements: [RequirementSchema],
+		prices: [PricingSchema],
+		faqs: [FAQSchema],
 		leads: [
 			{
 				type: Schema.Types.ObjectId,
 				ref: "Lead",
 			},
 		],
+
 	},
 	ServiceSchemaOptions
 );
