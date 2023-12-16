@@ -33,6 +33,7 @@ exports.createService = async (req, res, next) => {
 
 	// Step: Validate the request body
 	const errors = [];
+	
 	if (!name) errors.push("Service name is required");
 
 	if (!shortDescription)

@@ -23,20 +23,36 @@ const { createNotification } = require("../notification/new");
 exports.editService = async (req, res, next) => {
 	const {
 		name,
+		shortDescription,
 		details,
+		prices,
+		requirements,
+		faq,
 	} = req.body;
 	const { serviceID } = req.params;
 	const user = req.user;
 
-	// Step: Validate the request body and params
-	let errors = [];
+	// Step: Validate the request body
+	const errors = [];
+	
+	if (!name) errors.push("Service name is required");
 
-	if (!serviceID || !mongoose.Types.ObjectId.isValid(serviceID))
-		errors.push("Invalid service ID");
+	if (!shortDescription)
+		errors.push("Service short description is required");
+
+	//valitate to ensure that details, prices and requirements are arrays that contains atleast one object
+	if (!Array.isArray(details) || details.length < 1)
+		errors.push("Service details is required");
+
+	if (!Array.isArray(prices) || prices.length < 1)
+		errors.push("Service prices is required");
+
+	if (!Array.isArray(requirements) || requirements.length < 1)
+		errors.push("Service requirements is required");
 
 	if (errors.length > 0) {
 		logger.warn(
-			`Validation error in EditService Controller: ${errors.join(", ")}`
+			`Validation error in CreateService Controller: ${errors.join(", ")}`
 		);
 		return next(new ErrorResponse(errors.join(", "), 400));
 	}
@@ -45,6 +61,9 @@ exports.editService = async (req, res, next) => {
 
 	if (name) updatedService.name = name;
 	if (details) updatedService.details = details;
+	if (prices) updatedService.prices = prices;
+	if (requirements) updatedService.requirements = requirements;
+	if (faq) updatedService.faq = faq;
 
 	try {
 		const start = performance.now();
@@ -64,7 +83,7 @@ exports.editService = async (req, res, next) => {
 
 		// Create a notification
 		const notification = {
-			details: `Service ${name} has been updated successfully`,
+			details: `Service ${name} has been updated successfully by user ${user.fullname}`,
 			createdBy: user._id,
 			type: "edit",
 			relatedModel: "Service",
