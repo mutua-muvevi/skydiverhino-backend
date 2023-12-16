@@ -20,6 +20,9 @@ const {
 //details controller inputs
 const { addDetail, editDetail, deleteSingleDetail, deleteManyDetails } = require("../controllers/service/details");
 
+//requirement controller inputs
+const { addRequirement, editRequirement, deleteSingleRequirement, deleteManyRequirements } = require("../controllers/service/requirement");
+
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
 router.put(
@@ -77,6 +80,32 @@ router.delete(
 	authMiddleware,
 	checkUserExistence,
 	deleteManyDetails
+);
+
+//requirement controller
+router.put(
+	"/:userID/:serviceID/requirement/add",
+	authMiddleware,
+	checkUserExistence,
+	addRequirement
+);
+router.put(
+	"/:userID/:serviceID/requirement/edit/:requirementID",
+	authMiddleware,
+	checkUserExistence,
+	editRequirement
+);
+router.delete(
+	"/:userID/:serviceID/requirement/delete/single/:requirementID",
+	authMiddleware,
+	checkUserExistence,
+	deleteSingleRequirement
+);
+router.delete(
+	"/:userID/:serviceID/requirement/delete/many",
+	authMiddleware,
+	checkUserExistence,
+	deleteManyRequirements
 );
 
 module.exports = router;
