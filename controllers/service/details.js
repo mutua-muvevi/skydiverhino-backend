@@ -85,7 +85,7 @@ exports.addDetail = async (req, res, next) => {
 exports.editDetail = async (req, res, next) => {
 	const { title, details, image } = req.body;
 	const serviceID = req.params.serviceID;
-	const detailId = req.params.detailId;
+	const detailID = req.params.detailID;
 	const user = req.user;
 
 	//Step: Validate the request body
@@ -98,7 +98,7 @@ exports.editDetail = async (req, res, next) => {
 	if (!serviceID || !mongoose.isValidObjectId(serviceID))
 		errors.push("Service ID is required and must be a valid ID");
 
-	if (!detailId || !mongoose.isValidObjectId(detailId))
+	if (!detailID || !mongoose.isValidObjectId(detailID))
 		errors.push("Detail ID is required and must be a valid ID");
 
 	if (errors.length > 0) {
@@ -120,11 +120,11 @@ exports.editDetail = async (req, res, next) => {
 		}
 
 		//Step: Find the detail
-		const detail = service.details.id(detailId);
+		const detail = service.details.id(detailID);
 
 		if (!detail) {
 			logger.warn(
-				`Detail not found in EditDetail Controller: ${detailId}`
+				`Detail not found in EditDetail Controller: ${detailID}`
 			);
 			return next(new ErrorResponse("Detail not found", 404));
 		}

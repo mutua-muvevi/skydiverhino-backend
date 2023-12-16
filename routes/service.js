@@ -8,11 +8,17 @@ const checkUserExistence = require("../middlewares/checkuser");
 // controller inputs
 const { createService } = require("../controllers/service/new");
 const { editService } = require("../controllers/service/edit");
-const { fetchAllServices, fetchServiceByID } = require("../controllers/service/fetch");
-const { deleteSingleService, deleteManyServices } = require("../controllers/service/delete");
+const {
+	fetchAllServices,
+	fetchServiceByID,
+} = require("../controllers/service/fetch");
+const {
+	deleteSingleService,
+	deleteManyServices,
+} = require("../controllers/service/delete");
 
 //details controller inputs
-const { addDetail } = require("../controllers/service/details");
+const { addDetail, editDetail } = require("../controllers/service/details");
 
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
@@ -48,6 +54,17 @@ router.delete(
 );
 
 //details routes
-router.post("/:userID/:serviceID/details/add", authMiddleware, checkUserExistence, addDetail);
+router.put(
+	"/:userID/:serviceID/details/add",
+	authMiddleware,
+	checkUserExistence,
+	addDetail
+);
+router.put(
+	"/:userID/:serviceID/details/edit/:detailID",
+	authMiddleware,
+	checkUserExistence,
+	editDetail
+);
 
 module.exports = router;
