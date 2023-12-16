@@ -23,14 +23,31 @@ const { createNotification } = require("../notification/new");
 exports.createService = async (req, res, next) => {
 	const {
 		name,
+		shortDescription,
 		details,
+		prices,
+		requirements,
+		faq,
 	} = req.body;
 	const user = req.user;
 
 	// Step: Validate the request body
 	const errors = [];
+	
 	if (!name) errors.push("Service name is required");
-	if (!details) errors.push("Service details are required");
+
+	if (!shortDescription)
+		errors.push("Service short description is required");
+
+	//valitate to ensure that details, prices and requirements are arrays that contains atleast one object
+	if (!Array.isArray(details) || details.length < 1)
+		errors.push("Service details is required");
+
+	if (!Array.isArray(prices) || prices.length < 1)
+		errors.push("Service prices is required");
+
+	if (!Array.isArray(requirements) || requirements.length < 1)
+		errors.push("Service requirements is required");
 
 	if (errors.length > 0) {
 		logger.warn(
@@ -43,9 +60,8 @@ exports.createService = async (req, res, next) => {
 		const start = performance.now();
 
 		// Check if there is a service with a similar name
-		const existingService = await Service.findOne({
-			name,
-		});
+		const existingService = await Service.findOne({ name });
+
 		if (existingService) {
 			logger.warn(`Service with name: ${name} already exists`);
 			return next(
@@ -56,7 +72,11 @@ exports.createService = async (req, res, next) => {
 		// Create the service
 		const service = new Service({
 			name,
+			shortDescription,
 			details,
+			requirements,
+			prices,
+			faq
 		});
 
 		if (!service) {
@@ -76,11 +96,10 @@ exports.createService = async (req, res, next) => {
 
 		// Create a notification
 		const notification = {
-			details: `A new service ${name} has been created successfully`,
+			details: `A new service ${name} has been created successfully by user ${user._id}`,
 			type: "create",
 			relatedModel: "Service",
 			relatedModelID: service._id,
-			createdBy: user._id,
 		};
 
 		req.body = notification;
