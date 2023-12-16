@@ -27,7 +27,7 @@ exports.addDetail = async (req, res, next) => {
 
 	if (!details) errors.push("Detail details is required");
 
-	if(!serviceID || !mongoose.isValidObjectId(serviceID))
+	if (!serviceID || !mongoose.isValidObjectId(serviceID))
 		errors.push("Service ID is required and must be a valid ID");
 
 	if (errors.length > 0) {
