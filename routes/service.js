@@ -8,8 +8,17 @@ const checkUserExistence = require("../middlewares/checkuser");
 // controller inputs
 const { createService } = require("../controllers/service/new");
 const { editService } = require("../controllers/service/edit");
-const { fetchAllServices, fetchServiceByID } = require("../controllers/service/fetch");
-const { deleteSingleService, deleteManyServices } = require("../controllers/service/delete");
+const {
+	fetchAllServices,
+	fetchServiceByID,
+} = require("../controllers/service/fetch");
+const {
+	deleteSingleService,
+	deleteManyServices,
+} = require("../controllers/service/delete");
+
+//details controller inputs
+const { addDetail, editDetail, deleteSingleDetail, deleteManyDetails } = require("../controllers/service/details");
 
 //routes
 router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
@@ -42,6 +51,32 @@ router.delete(
 	authMiddleware,
 	checkUserExistence,
 	deleteManyServices
+);
+
+//details routes
+router.put(
+	"/:userID/:serviceID/details/add",
+	authMiddleware,
+	checkUserExistence,
+	addDetail
+);
+router.put(
+	"/:userID/:serviceID/details/edit/:detailID",
+	authMiddleware,
+	checkUserExistence,
+	editDetail
+);
+router.delete(
+	"/:userID/:serviceID/details/delete/single/:detailID",
+	authMiddleware,
+	checkUserExistence,
+	deleteSingleDetail
+);
+router.delete(
+	"/:userID/:serviceID/details/delete/many",
+	authMiddleware,
+	checkUserExistence,
+	deleteManyDetails
 );
 
 module.exports = router;
