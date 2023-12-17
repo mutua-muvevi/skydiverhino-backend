@@ -21,7 +21,14 @@ exports.fetchAllReservations = async (req, res, next) => {
 		const start = performance.now();
 
 		// Find all bookings
-		const bookings = await Reservation.find().sort({ createdAt: -1 }).lean();
+		const bookings = await Reservation.find()
+			.populate({
+				path: "service",
+				select: "name shortDescription details",
+			})
+			.select("-__v")
+			.sort({ createdAt: -1 })
+			.lean();
 
 		if (!bookings || bookings.length === 0) {
 			return next(new ErrorResponse("No bookings found", 404));
@@ -42,14 +49,15 @@ exports.fetchAllReservations = async (req, res, next) => {
 	}
 };
 
-
 // Fetch single booking by ID
 exports.fetchReservationByID = async (req, res, next) => {
 	const { bookingID } = req.params;
 
 	// Validate the bookingID
 	if (!bookingID || !mongoose.Types.ObjectId.isValid(bookingID)) {
-		logger.warn("Validation error in fetchReservationByID: Invalid booking ID");
+		logger.warn(
+			"Validation error in fetchReservationByID: Invalid booking ID"
+		);
 		return next(new ErrorResponse("Invalid booking ID", 400));
 	}
 

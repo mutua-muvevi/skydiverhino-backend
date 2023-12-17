@@ -37,16 +37,14 @@ router.put(
 	checkUserExistence,
 	editService
 );
+
+//fetch services
 router.get(
-	"/:userID/fetch/all",
-	authMiddleware,
-	checkUserExistence,
+	"/fetch/all",
 	fetchAllServices
 );
 router.get(
-	"/:userID/fetch/single/:serviceID",
-	authMiddleware,
-	checkUserExistence,
+	"/fetch/single/:serviceID",
 	fetchServiceByID
 );
 router.delete(

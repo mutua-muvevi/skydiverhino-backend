@@ -15,17 +15,19 @@
 //imports
 const Reservation = require("../../models/reservation/reservation");
 const ErrorResponse = require("../../utils/errorResponse");
+const Service = require("../../models/service/service");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
 
 // controller
 exports.createReservation = async (req, res, next) => {
-	const { date, participants, agreements } = req.body;
+	const { date, participants, agreements, service } = req.body;
 
 	//Step: validate the request body
 	let errors = [];
 
 	if (!date) errors.push("Reservation date is required");
+	if (!service) errors.push("Reservation service is required");
 	if(!participants || participants.length < 1) errors.push("Reservation participants are required");
 	if(!agreements || agreements.length < 1) errors.push("Reservation agreements are required");
 
@@ -39,11 +41,20 @@ exports.createReservation = async (req, res, next) => {
 	try {
 		const start = performance.now();
 
+		// check for service
+		const serviceExists = await Service.findById(service);
+
+		if (!serviceExists) {
+			logger.warn(`Service not found`);
+			return next(new ErrorResponse(`Service not found`, 404));
+		}
+
 		//create the booking
 		const booking = await Reservation.create({
 			date,
 			participants,
 			agreements,
+			service
 		});
 		
 		if(!booking) {
@@ -59,8 +70,6 @@ exports.createReservation = async (req, res, next) => {
 			relatedModel: "Reservation",
 			relatedModelID: booking._id
 		};
-		// return res.send(booking)
-		// console.log("Reservation", booking)
 		
 		req.body = notification;
 		await createNotification(req, res, next);

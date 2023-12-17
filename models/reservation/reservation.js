@@ -96,6 +96,11 @@ const ReservationSchema = new Schema(
 		},
 		participants: [ParticipantsSchema],
 		agreements: [AgreementSchema],
+		service: {
+			type: Schema.Types.ObjectId,
+			ref: "Service",
+			index: true,
+		},
 	}, SchemaOptions
 );
 
