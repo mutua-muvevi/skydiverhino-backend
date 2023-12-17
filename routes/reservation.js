@@ -26,18 +26,18 @@ router.get(
 	checkUserExistence,
 	fetchReservationByID
 );
+
 //delete single reservation
 router.delete(
-	"/:reservationID/delete",
+	"/:userID/:reservationID/delete/single",
 	authMiddleware,
 	checkUserExistence,
 	deleteReservation
 );
 
-
 //delete multiple reservations
 router.delete(
-	"/delete/multiple",
+	"/:userID/delete/many",
 	authMiddleware,
 	checkUserExistence,
 	deleteReservations

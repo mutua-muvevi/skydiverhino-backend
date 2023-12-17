@@ -22,7 +22,10 @@ exports.fetchAllServices = async (req, res, next) => {
 		const start = performance.now();
 
 		// Find all services
-		const services = await Service.find().sort({ createdAt: -1 }).lean();
+		const services = await Service.find()
+			.sort({ createdAt: -1 })
+			.lean()
+			.select("-__v");
 
 		if (!services || services.length === 0) {
 			return next(new ErrorResponse("No services found", 404));
@@ -42,7 +45,6 @@ exports.fetchAllServices = async (req, res, next) => {
 		return next(error);
 	}
 };
-
 
 // Fetch single service by ID
 exports.fetchServiceByID = async (req, res, next) => {
