@@ -33,8 +33,8 @@ const getFolderByExtension = (extension) => {
 // Step 3: Upload file to Google Cloud Storage
 const uploadToGCS = async (file) => {
 	return new Promise((resolve, reject) => {
-		if (!file) {
-			return reject(new Error("No file provided"));
+		if (!file || !file.originalname || !file.buffer) {
+			throw new Error("File is undefined or missing required properties");
 		}
 
 		const extension = path.extname(file.originalname).toLowerCase();
