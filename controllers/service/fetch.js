@@ -25,7 +25,11 @@ exports.fetchAllServices = async (req, res, next) => {
 		const services = await Service.find()
 			.sort({ createdAt: -1 })
 			.lean()
-			.select("-__v");
+			.select("-__v")
+			.populate({
+				path: "leads",
+				select: "-__v fullname email country",
+			});
 
 		if (!services || services.length === 0) {
 			return next(new ErrorResponse("No services found", 404));

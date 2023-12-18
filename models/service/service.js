@@ -120,14 +120,27 @@ const ServiceSchema = new Schema(
 			maxLength: [250, "Maximum characters required for short description is 250"],
 			trim: true,
 		},
+		
 		details: [DescriptionBlockSchema],
 		requirements: [RequirementSchema],
 		prices: [PricingSchema],
 		faqs: [FAQSchema],
+		
 		leads: [
 			{
 				type: Schema.Types.ObjectId,
 				ref: "Lead",
+			},
+		],
+		clients: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Client",
+			},
+		],
+		gallery: [
+			{
+				type: String,
 			},
 		],
 
