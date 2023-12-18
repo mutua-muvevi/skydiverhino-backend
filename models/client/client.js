@@ -113,6 +113,11 @@ const ClientSchema = new Schema(
 				type: String,
 			},
 		],
+		service: {
+			type: Schema.Types.ObjectId,
+			ref: "Service",
+			default: null
+		},
 	},
 	SchemaOptions
 );

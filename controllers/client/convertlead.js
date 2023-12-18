@@ -41,7 +41,6 @@ exports.convertToClient = async (req, res, next) => {
 
 		// retrieve the lead
 		const lead = await Lead.findById(leadID);
-		console.log("Lead is", lead)
 
 		if (!lead) {
 			logger.warn(`Lead not found with ID: ${leadID}`);
