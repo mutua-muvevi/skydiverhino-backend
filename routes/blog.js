@@ -16,7 +16,7 @@ router.post(
 	checkUserExistence,
 	upload.fields([
 		{ name: "thumbnail", maxCount: 1 },
-		{ name: "contentImages", maxCount: 10 },
+		{ name: "image", maxCount: 10 },
 	]),
 	createBlog
 );

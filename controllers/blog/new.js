@@ -21,12 +21,18 @@ const { createNotification } = require("../notification/new");
 
 // Helper function to upload images and return their URLs
 async function uploadImages(images) {
-	//if there is no images or images is not an array or images length is less than one return empty array
 	if (!images || !Array.isArray(images) || images.length < 1) {
 		return [];
 	}
 
-	return Promise.all(images.map((img) => uploadToGCS(img)));
+	console.log("Images here are", images);
+
+	return Promise.all(
+		images.map((img, index) => {
+			console.log(`Processing image ${index}: `, img);
+			return uploadToGCS(img);
+		})
+	);
 }
 
 //the controller
@@ -36,10 +42,7 @@ exports.createBlog = async (req, res, next) => {
 
 	// Extracting thumbnail and content images from the request
 	const thumbnail = req.files.thumbnail;
-	const contentImages = req.files.contentImages;
-
-	console.log("The request files are", req.files);
-	console.log("The request body are", req.body);
+	const contentImages = req.files.image;
 
 	//Step: validate the request body
 	let errors = [];
@@ -92,9 +95,11 @@ exports.createBlog = async (req, res, next) => {
 		const startUpload = performance.now();
 
 		const [thumbnailUrl, contentImageUrls] = await Promise.all([
-			uploadToGCS(thumbnail),
+			uploadToGCS(thumbnail[0]),
 			uploadImages(contentImages),
 		]);
+
+		console.log("contentImageUrls", contentImageUrls)
 
 		// Assign each image URL to the corresponding content block
 		const updatedContentBlocks = contentBlocks.map((block, index) => ({

@@ -34,6 +34,7 @@ const getFolderByExtension = (extension) => {
 const uploadToGCS = async (file) => {
 	return new Promise((resolve, reject) => {
 		if (!file || !file.originalname || !file.buffer) {
+			console.log("The file is ", file)
 			throw new Error("File is undefined or missing required properties");
 		}
 
