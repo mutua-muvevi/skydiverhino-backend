@@ -18,6 +18,7 @@ const Client = require("../../models/client/client");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
+
 // controller
 exports.createClient = async (req, res, next) => {
 	const { fullname, email, details, telephone, city, country, leadSource } = req.body;
