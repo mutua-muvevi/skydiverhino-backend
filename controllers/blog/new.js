@@ -38,7 +38,7 @@ async function uploadImages(images) {
 //the controller
 exports.createBlog = async (req, res, next) => {
 	const user = req.user;
-	const { title, introDescription, contentBlocks, tags } = req.body;
+	let { title, introDescription, contentBlocks, tags } = req.body;
 
 	// Extracting thumbnail and content images from the request
 	const thumbnail = req.files.thumbnail;
@@ -99,8 +99,6 @@ exports.createBlog = async (req, res, next) => {
 			uploadImages(contentImages),
 		]);
 
-		console.log("contentImageUrls", contentImageUrls)
-
 		// Assign each image URL to the corresponding content block
 		const updatedContentBlocks = contentBlocks.map((block, index) => ({
 			...block,
@@ -108,6 +106,9 @@ exports.createBlog = async (req, res, next) => {
 		}));
 
 		const endUpload = performance.now();
+
+		//parsing tags
+		tags = JSON.parse(tags);
 
 		//create the blog
 		const newBlog = await Blog.create({
