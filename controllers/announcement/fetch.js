@@ -12,6 +12,8 @@
  */
 
 //imports
+//imports
+const mongoose = require("mongoose");
 const Announcement = require("../../models/announcement/announcement");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
@@ -63,11 +65,6 @@ exports.fetchAllAnnouncements = async (req, res, next) => {
  *
  */
 
-//imports
-const mongoose = require("mongoose");
-const Announcement = require("../../models/announcement/announcement");
-const ErrorResponse = require("../../utils/errorResponse");
-const logger = require("../../utils/logger");
 
 //the controller
 exports.fetchAnnouncementByID = async (req, res, next) => {

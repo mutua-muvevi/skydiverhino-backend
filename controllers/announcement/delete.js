@@ -14,6 +14,7 @@
  */
 
 //the imports
+
 const mongoose = require("mongoose");
 const Announcement = require("../../models/announcement/announcement");
 const ErrorResponse = require("../../utils/errorResponse");
@@ -24,7 +25,7 @@ const { createNotification } = require("../notification/new");
 exports.deleteAnnouncement = async (req, res, next) => {
 	const { announcementID } = req.params;
 	const user = req.user;
-
+	
 	if (!announcementID || !mongoose.Types.ObjectId.isValid(announcementID)) {
 		return next(new ErrorResponse("Invalid Announcement ID", 400));
 	}
@@ -70,6 +71,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
 			})}`
 		);
 	} catch (error) {
+		logger.error(`Error deleting announcement: ${error}`)
 		next(error);
 	}
 };
@@ -89,13 +91,6 @@ exports.deleteAnnouncement = async (req, res, next) => {
  * - Log the success
  *
  */
-
-//the imports
-const mongoose = require("mongoose");
-const Announcement = require("../../models/announcement/announcement");
-const ErrorResponse = require("../../utils/errorResponse");
-const logger = require("../../utils/logger");
-const { createNotification } = require("../notification/new");
 
 //the controller
 exports.deleteAnnouncements = async (req, res, next) => {

@@ -44,7 +44,7 @@ app.use("/api/curriculum", require("./routes/curriculum"));
 app.use("/api/voicemail", require("./routes/voicemail"));
 app.use("/api/storage", require("./routes/storage"));
 app.use("/api/blog", require("./routes/blog"));
-console.log("No blockage")
+app.use("/api/announcement", require("./routes/announcement"));
 
 
 //error middleware

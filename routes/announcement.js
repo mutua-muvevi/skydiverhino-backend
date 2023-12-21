@@ -4,11 +4,16 @@ const router = express.Router();
 //middlewares
 const { authMiddleware } = require("../middlewares/authentication");
 const checkUserExistence = require("../middlewares/checkuser");
-
 // controller inputs
 const { createAnnouncement } = require("../controllers/announcement/new");
-const { fetchAllAnnouncements, fetchAnnouncementByID } = require("../controllers/announcement/fetch");
-const { deleteAnnouncement, deleteAnnouncements } = require("../controllers/announcement/delete");
+const {
+	deleteAnnouncement,
+	deleteAnnouncements,
+} = require("../controllers/announcement/delete");
+const {
+	fetchAllAnnouncements,
+	fetchAnnouncementByID,
+} = require("../controllers/announcement/fetch");
 
 //routes
 router.post(
@@ -19,7 +24,7 @@ router.post(
 );
 
 router.get("/fetch/all", fetchAllAnnouncements);
-router.get("/fetch/:announcementID", fetchAnnouncementByID);
+router.get("/fetch/single/:announcementID", fetchAnnouncementByID);
 
 router.delete(
 	"/:userID/delete/single/:announcementID",
@@ -34,3 +39,6 @@ router.delete(
 	checkUserExistence,
 	deleteAnnouncements
 );
+
+//export
+module.exports = router;
