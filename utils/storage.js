@@ -91,6 +91,8 @@ const uploadToGCS = async (file) => {
  */
 const updateInGCS = async (oldFileName, file) => {
 	try {
+		console.log("The file is ", file)
+		console.log("The oldFileName is ", oldFileName)
 		// Step 1: Upload the new file
 		const newFileURL = await uploadToGCS(file);
 

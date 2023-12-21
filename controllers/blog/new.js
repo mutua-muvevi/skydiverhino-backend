@@ -25,8 +25,6 @@ async function uploadImages(images) {
 		return [];
 	}
 
-	console.log("Images here are", images);
-
 	return Promise.all(
 		images.map((img, index) => {
 			console.log(`Processing image ${index}: `, img);
