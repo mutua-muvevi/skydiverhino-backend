@@ -22,8 +22,6 @@ const storage = multer.memoryStorage();
 
 // Step 2: Set up the file filtering mechanism
 const fileFilter = (req, file, cb) => {
-	console.log("The request body is", req.body)
-	console.log("The request file is", req.file)
 	// Convert extension to lowercase
 	const ext = path.extname(file.originalname).toLowerCase();
 
