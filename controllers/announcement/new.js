@@ -78,7 +78,7 @@ exports.createAnnouncement = async (req, res, next) => {
 			relatedModel: "Announcement",
 			relatedModelID: announcement._id,
 			createdBy: user._id,
-		}
+		};
 
 		req.body = notification;
 		await createNotification(req, res, next);
@@ -86,9 +86,10 @@ exports.createAnnouncement = async (req, res, next) => {
 		const end = performance.now();
 
 		logger.info(
-			`New announcement: ${title} created successfully in ${end - start}ms`
+			`New announcement: ${title} created successfully in ${
+				end - start
+			}ms`
 		);
-
 	} catch (error) {
 		logger.error(`Error creating new announcement: ${error.message}`);
 		return next(new ErrorResponse("Error creating new announcement", 500));
