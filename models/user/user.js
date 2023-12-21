@@ -84,6 +84,14 @@ const UserSchema = new Schema(
 			},
 		],
 
+		//announcement
+		announcements: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Announcement",
+			},
+		],
+
 		//storage
 		storage: {},
 		totalStorage: {
