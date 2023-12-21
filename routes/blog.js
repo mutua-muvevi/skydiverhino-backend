@@ -8,6 +8,7 @@ const checkUserExistence = require("../middlewares/checkuser");
 // controller inputs
 const { createBlog } = require("../controllers/blog/new");
 const { upload } = require("../utils/multer");
+const { fetchAllBlogs, fetchBlogByID } = require("../controllers/blog/fetch");
 
 //routes
 router.post(
@@ -20,6 +21,16 @@ router.post(
 	]),
 	createBlog
 );
+
+router.get(
+	"/fetch/all",
+	fetchAllBlogs
+);
+
+router.get(
+	"/fetch/:blogID",
+	fetchBlogByID
+)
 
 //export
 module.exports = router;
