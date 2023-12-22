@@ -83,6 +83,13 @@ exports.createAnnouncement = async (req, res, next) => {
 		req.body = notification;
 		await createNotification(req, res, next);
 
+		//return the response
+		res.status(200).json({
+			success: true,
+			data: announcement ,
+			message: "Announcement created successfully",
+		});
+
 		const end = performance.now();
 
 		logger.info(

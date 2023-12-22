@@ -22,7 +22,13 @@ exports.fetchAllLeads = async (req, res, next) => {
 		const start = performance.now();
 
 		//find all leads
-		const leads = await Lead.find().sort({ createdAt: -1 }).lean();
+		const leads = await Lead.find()
+			.populate({
+				path: "service",
+				select: "name",
+			})
+			.sort({ createdAt: -1 })
+			.lean();
 
 		if (!leads) {
 			return next(new ErrorResponse("No leads found", 404));
