@@ -29,7 +29,7 @@ exports.fetchAllAnnouncements = async (req, res, next) => {
 			.sort({ createdAt: -1 })
 			.populate({
 				path: "uploadedBy",
-				select: "fullname email",
+				select: "fullname -_id",
 			});
 
 		//send a response to the client
@@ -42,9 +42,7 @@ exports.fetchAllAnnouncements = async (req, res, next) => {
 		//log the success
 		const end = performance.now();
 		logger.info(
-			`Announcements fetched in ${end - start}ms: ${JSON.stringify({
-				announcements,
-			})}`
+			`Announcements fetched in ${end - start}ms}`
 		);
 	} catch (error) {
 		next(error);
@@ -80,6 +78,7 @@ exports.fetchAnnouncementByID = async (req, res, next) => {
 		//fetch the announcement
 		const announcement = await Announcement.findById(announcementID)
 			.lean()
+			.select("-updatedAt")
 			.populate({
 				path: "uploadedBy",
 				select: "fullname email",
@@ -95,9 +94,7 @@ exports.fetchAnnouncementByID = async (req, res, next) => {
 		//log the success
 		const end = performance.now();
 		logger.info(
-			`Announcement fetched in ${end - start}ms: ${JSON.stringify({
-				announcement,
-			})}`
+			`Announcement fetched in ${end - start}ms:}`
 		);
 	} catch (error) {
 		next(error);
