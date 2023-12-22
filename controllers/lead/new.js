@@ -25,7 +25,7 @@ const { createNotification } = require("../notification/new");
 exports.createLead = async (req, res, next) => {
 	const {
 		fullname,
-		details,
+		message,
 		email,
 		telephone,
 		city,
@@ -54,39 +54,7 @@ exports.createLead = async (req, res, next) => {
 
 	try {
 		const start = performance.now();
-
-		//check if there is a lead with similar fullname
-		const leads = await Lead.find({ fullname });
-
-		if (leads.length > 0) {
-			logger.warn(
-				`Lead with fullname: ${fullname} already exists in your account`
-			);
-			return next(
-				new ErrorResponse(
-					"Lead with this fullname already exists in your account",
-					400
-				)
-			);
-		}
-
-		//check if there is a lead with this simmilar email
-		const existingLead = await Lead.find({
-			email,
-		});
-
-		if (existingLead.length > 0) {
-			logger.warn(
-				`Lead with email: ${email} already exists in your account`
-			);
-			return next(
-				new ErrorResponse(
-					"Lead with this email already exists in your account",
-					400
-				)
-			);
-		}
-
+		
 		//check if service exist if serviceID is provided
 		let service = null;
 		
@@ -105,7 +73,7 @@ exports.createLead = async (req, res, next) => {
 		//create the lead
 		const lead = new Lead({
 			fullname,
-			details,
+			message,
 			email,
 			telephone,
 			city,
@@ -122,19 +90,12 @@ exports.createLead = async (req, res, next) => {
 		//save the lead
 		await lead.save();
 
-		//save the lead to the service
-		if (service) {
-			service.leads.push(lead._id);
-			await service.save();
-		};
-
 		//create notification
 		const notification = {
 			details: `A new lead ${fullname} has been created successfully`,
 			type: "create",
 			relatedModel: "Lead",
 			relatedModelID: lead._id,
-			createdBy: user._id,
 		};
 
 		req.body = notification;

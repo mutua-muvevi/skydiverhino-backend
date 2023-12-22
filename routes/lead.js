@@ -12,7 +12,7 @@ const { fetchAllLeads, fetchLeadByID } = require("../controllers/lead/fetch");
 const { deleteLead, deleteLeads } = require("../controllers/lead/delete");
 
 //routes
-router.post("/:userID/post", authMiddleware, checkUserExistence, createLead);
+router.post("/post", createLead);
 router.put(
 	"/:userID/edit/:leadID",
 	authMiddleware,
