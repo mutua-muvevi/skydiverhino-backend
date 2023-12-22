@@ -34,7 +34,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
 		const start = performance.now();
 
 		// Find the announcement
-		const announcement = await Announcement.findByIdAndDelete(
+		const announcement = await Announcement.findById(
 			announcementID
 		);
 
@@ -43,7 +43,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
 		}
 
 		// Check if the user is authorized to delete the announcement
-		if (announcement.author.toString() !== user._id.toString()) {
+		if (announcement.uploadedBy.toString() !== user._id.toString()) {
 			return next(
 				new ErrorResponse(
 					"You are not authorized to delete this announcement",
@@ -55,6 +55,9 @@ exports.deleteAnnouncement = async (req, res, next) => {
 		// Remove the announcement from the user's announcements array
 		user.announcements.pull(announcementID);
 		await user.save();
+
+		// Delete the announcement
+		await Announcement.findByIdAndDelete(announcementID);
 
 		// Send a response to the client
 		res.status(200).json({
@@ -115,7 +118,7 @@ exports.deleteAnnouncements = async (req, res, next) => {
 
 		// Check if the user is authorized to delete the announcement
 		for (let announcement of announcements) {
-			if (announcement.author.toString() !== user._id.toString()) {
+			if (announcement.uploadedBy.toString() !== user._id.toString()) {
 				return next(
 					new ErrorResponse(
 						"You are not authorized to delete this announcement",
