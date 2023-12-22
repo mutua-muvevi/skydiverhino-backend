@@ -41,6 +41,7 @@ exports.createLead = async (req, res, next) => {
 	if (!fullname) errors.push("Lead fullname is required");
 	if (!email) errors.push("Lead email is required");
 	if (!country) errors.push("Lead country is required");
+	if(!serviceID) errors.push("Service ID is required");
 
 	if (serviceID && !mongoose.Types.ObjectId.isValid(serviceID))
 		errors.push("Service ID is invalid");
@@ -54,21 +55,6 @@ exports.createLead = async (req, res, next) => {
 
 	try {
 		const start = performance.now();
-		
-		//check if service exist if serviceID is provided
-		let service = null;
-		
-		if (serviceID) {
-			service = await Service.findOne({
-				_id: serviceID,
-			});
-
-			if (!service) {
-				logger.warn(`Service with ID: ${serviceID} does not exist`);
-				return next(new ErrorResponse("Service does not exist", 404));
-			}
-		}
-
 
 		//create the lead
 		const lead = new Lead({
@@ -83,12 +69,23 @@ exports.createLead = async (req, res, next) => {
 		});
 
 		if (!lead) {
-			logger.error(`Error in creating new lead for user: {${user._id}}`);
+			logger.error(`Error in creating new lead `);
 			return next(new ErrorResponse("Error in creating lead", 500));
 		}
 
 		//save the lead
 		await lead.save();
+
+		//find the service
+
+		const service = await Service.findByIdAndUpdate(serviceID, {
+			$push: { leads: lead._id }
+		});
+
+		if(!service) {
+			logger.error(`Error in pushing lead to service`);
+			return next(new ErrorResponse("Error in pushing lead to service", 500));
+		}
 
 		//create notification
 		const notification = {
@@ -112,12 +109,13 @@ exports.createLead = async (req, res, next) => {
 
 		//logging success
 		logger.info(
-			`Lead created successfully for user: {${user._id}} in ${
+			`Lead created successfully for user: in ${
 				end - start
 			}ms`
 		);
 	} catch (error) {
 		logger.error(`Error in CreateLead Controller: ${error.message}`);
+		console.error("Error details:", error);
 		next(error);
 	}
 };

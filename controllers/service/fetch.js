@@ -25,10 +25,9 @@ exports.fetchAllServices = async (req, res, next) => {
 		const services = await Service.find()
 			.sort({ createdAt: -1 })
 			.lean()
-			.select("-__v")
 			.populate({
 				path: "leads",
-				select: "-__v fullname email country",
+				select: " fullname email country",
 			});
 
 		if (!services || services.length === 0) {
