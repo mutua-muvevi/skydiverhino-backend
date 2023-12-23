@@ -50,7 +50,7 @@ exports.convertToClient = async (req, res, next) => {
 		// create a new client from the lead's data
 		const clientData = {
 			fullname: lead.fullname,
-			details: lead.details,
+			message: lead.message,
 			email: lead.email,
 			telephone: lead.telephone,
 			city: lead.city,
