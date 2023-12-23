@@ -60,8 +60,8 @@ router.put(
 	checkUserExistence,
 	removeFileFromClient
 );
-router.post(
-	"/:userID/post/lead/:leadID",
+router.get(
+	"/:userID/convert/lead/:leadID",
 	authMiddleware,
 	checkUserExistence,
 	convertToClient

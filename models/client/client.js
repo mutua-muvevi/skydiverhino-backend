@@ -27,10 +27,10 @@ const ClientSchema = new Schema(
 			required: [true, "Fullname is required"],
 			index: true,
 		},
-		details: {
+		message: {
 			type: String,
-			minLength: [4, "Minimum characters required for details is 4"],
-			maxLength: [1000, "Maximum characters required for details is 1000"],
+			minLength: [4, "Minimum characters required for message is 4"],
+			maxLength: [1000, "Maximum characters required for message is 1000"],
 			trim: true,
 		},
 		email: {
@@ -98,11 +98,14 @@ const ClientSchema = new Schema(
 			type: String,
 			enum: {
 				values: [
+					"Google",
 					"Email",
 					"Phone",
 					"Website",
 					"Referral",
-					"Social Media",
+					"Facebook",
+					"TikTok",
+					"Instagram",
 					"Other",
 				],
 				message: "{VALUE} is not supported",
