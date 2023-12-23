@@ -22,6 +22,7 @@ const Client = require("../../models/client/client");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
+const Service = require("../../models/service/service");
 
 // controller
 exports.convertToClient = async (req, res, next) => {
@@ -66,6 +67,15 @@ exports.convertToClient = async (req, res, next) => {
 
 		// delete the lead from the database
 		await Lead.findByIdAndDelete(leadID);
+
+		//remove the lead from the service's leads array and push the client to the service's clients array
+		const service = await Service.findById(lead.service);
+
+		service.leads = service.leads.filter((lead) => lead != leadID);
+
+		service.clients.push(client._id);
+
+		await service.save();
 
 		// create notification
 		const notification = {
