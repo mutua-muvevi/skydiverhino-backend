@@ -80,11 +80,14 @@ const LeadSchema = new Schema(
 			type: String,
 			enum: {
 				values: [
+					"Google",
 					"Email",
 					"Phone",
 					"Website",
 					"Referral",
-					"Social Media",
+					"Facebook",
+					"TikTok",
+					"Instagram",
 					"Other",
 				],
 				message: "{VALUE} is not supported",
