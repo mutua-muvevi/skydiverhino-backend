@@ -31,7 +31,7 @@ exports.createLead = async (req, res, next) => {
 		city,
 		country,
 		leadSource,
-		serviceID,
+		service,
 	} = req.body;
 	const user = req.user;
 
@@ -41,9 +41,9 @@ exports.createLead = async (req, res, next) => {
 	if (!fullname) errors.push("Lead fullname is required");
 	if (!email) errors.push("Lead email is required");
 	if (!country) errors.push("Lead country is required");
-	if(!serviceID) errors.push("Service ID is required");
+	if(!service) errors.push("Service ID is required");
 
-	if (serviceID && !mongoose.Types.ObjectId.isValid(serviceID))
+	if (service && !mongoose.Types.ObjectId.isValid(service))
 		errors.push("Service ID is invalid");
 
 	if (errors.length > 0) {
@@ -65,9 +65,9 @@ exports.createLead = async (req, res, next) => {
 			city,
 			country,
 			leadSource,
-			service: serviceID,
+			service: service,
 		});
-
+		
 		if (!lead) {
 			logger.error(`Error in creating new lead `);
 			return next(new ErrorResponse("Error in creating lead", 500));
@@ -78,11 +78,11 @@ exports.createLead = async (req, res, next) => {
 
 		//find the service
 
-		const service = await Service.findByIdAndUpdate(serviceID, {
+		const foundService = await Service.findByIdAndUpdate(service, {
 			$push: { leads: lead._id }
 		});
 
-		if(!service) {
+		if(!foundService) {
 			logger.error(`Error in pushing lead to service`);
 			return next(new ErrorResponse("Error in pushing lead to service", 500));
 		}
