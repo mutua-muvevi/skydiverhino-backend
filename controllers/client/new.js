@@ -14,22 +14,28 @@
  */
 
 //the imports
+const mongoose = require("mongoose");
 const Client = require("../../models/client/client");
+const Service = require("../../models/service/service");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
 
 // controller
 exports.createClient = async (req, res, next) => {
-	const { fullname, email, details, telephone, city, country, leadSource } = req.body;
+	const { fullname, email, details, telephone, city, country, leadSource, service } = req.body;
 	const user = req.user;
 
 	//Step: validate the request body
 	let errors = [];
 
-	if (!fullname) errors.push("Client fullname is required");
-	if (!email) errors.push("Client email is required");
-	if (!country) errors.push("Client country is required");
+	if (!fullname) errors.push("Lead fullname is required");
+	if (!email) errors.push("Lead email is required");
+	if (!country) errors.push("Lead country is required");
+	if (!service) errors.push("Service ID is required");
+
+	if (service && !mongoose.Types.ObjectId.isValid(service))
+	errors.push("Service ID is invalid");
 
 	if (errors.length > 0) {
 		logger.warn(
@@ -74,7 +80,8 @@ exports.createClient = async (req, res, next) => {
 			telephone,
 			city,
 			country,
-			leadSource
+			leadSource,
+			service
 		});
 
 		if (!client) {
@@ -91,6 +98,16 @@ exports.createClient = async (req, res, next) => {
 
 		//save the client
 		await client.save();
+
+		//find the service and push the client to the service clients array
+		const foundService = await Service.findByIdAndUpdate(service, {
+			$push: { clients: client._id }
+		});
+
+		if(!foundService) {
+			logger.error(`Error in pushing lead to service`);
+			return next(new ErrorResponse("Error in pushing lead to service", 500));
+		}
 
 		//create notification
 		const notification = {

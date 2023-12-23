@@ -20,6 +20,7 @@
 //imports
 const mongoose = require("mongoose");
 const Client = require("../../models/client/client");
+const Service = require("../../models/service/service");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
@@ -48,6 +49,23 @@ exports.deleteClient = async (req, res, next) => {
 		if (!client) {
 			return next(
 				new ErrorResponse("You are not authorized to delete", 401)
+			);
+		}
+
+		//remove the client from service's clients array
+		const service = await Service.findByIdAndUpdate(client.service, {
+			$pull: { clients: clientID },
+		});
+
+		if (!service) {
+			logger.warn(
+				`Something went wrong while removing service from client`
+			);
+			return next(
+				new ErrorResponse(
+					"Something went wrong while removing service from client",
+					404
+				)
 			);
 		}
 
@@ -133,7 +151,7 @@ exports.deleteClients = async (req, res, next) => {
 		}
 
 		//delete the clients
-		await Client.deleteMany({ _id: { $in: clientIDs }});
+		await Client.deleteMany({ _id: { $in: clientIDs } });
 
 		//create notification
 		const notification = {

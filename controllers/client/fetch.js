@@ -22,7 +22,13 @@ exports.fetchAllClients = async (req, res, next) => {
 		const start = performance.now();
 
 		//find all clients
-		const clients = await Client.find().sort({ createdAt: -1 }).lean();
+		const clients = await Client.find()
+			.sort({ createdAt: -1 })
+			.lean()
+			.populate({
+				path: "service",
+				select: "name",
+			});
 
 		if (!clients) {
 			return next(new ErrorResponse("No clients found", 404));
@@ -43,7 +49,6 @@ exports.fetchAllClients = async (req, res, next) => {
 		next(error);
 	}
 };
-
 
 //fetch a single client by id
 exports.fetchClientByID = async (req, res, next) => {

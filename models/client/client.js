@@ -78,22 +78,6 @@ const ClientSchema = new Schema(
 			maxLength: [100, "Maximum characters required for company is 100"],
 			trim: true,
 		},
-		projects: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: "Project",
-			},
-		],
-		payments: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: "Payment",
-			},
-		],
-		totalPayments: {
-			type: Number,
-			default: 0,
-		},
 		leadSource: {
 			type: String,
 			enum: {
@@ -111,11 +95,6 @@ const ClientSchema = new Schema(
 				message: "{VALUE} is not supported",
 			},
 		},
-		files: [
-			{
-				type: String,
-			},
-		],
 		service: {
 			type: Schema.Types.ObjectId,
 			ref: "Service",
