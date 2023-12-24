@@ -17,7 +17,7 @@ const mongoose = require("mongoose");
 const Term = require("../../models/term/term");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const { updateInGCS } = require("../../utils/storage");
+const { updateInGCS, uploadToGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 //the controller
@@ -72,9 +72,15 @@ exports.editTerm = async (req, res, next) => {
 		if(file && file !== ""){
 			const startUpload = performance.now();
 
-			const filename = term.file.split("/").pop();
+			//if the term.file doesnt exist, then use uploadToGCS
+			if(!term.file){
+				fileUrl = await uploadToGCS(file);
+			} else {
+				//else use updateInGCS
+				const filename = term.file.split("/").pop();
 
-			fileUrl = await updateInGCS(filename, file);
+				fileUrl = await updateInGCS(filename, file);
+			}
 
 			const endUpload = performance.now();
 			logger.info(`Upload time is ${endUpload - startUpload}ms`);
