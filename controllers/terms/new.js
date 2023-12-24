@@ -42,6 +42,8 @@ exports.createTerm = async (req, res, next) => {
 
 	try {
 		const start = performance.now();
+		console.log("BODY", req.body)
+		console.log("file", req.file)
 
 		//upload the file to GCS if file exists
 		let fileUrl = null

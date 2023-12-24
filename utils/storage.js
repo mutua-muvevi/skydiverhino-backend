@@ -1,4 +1,5 @@
-/**
+
+g/**
  * ## GCP Upload Utility
  *
  * This utility is designed for handling file uploads to Google Cloud Storage.
@@ -30,6 +31,7 @@ const bucketName = process.env.GCP_BUCKET_NAME;
 const getFolderByExtension = (extension) => {
 	return extensionMappings[extension] || "others";
 };
+
 // Step 3: Upload file to Google Cloud Storage
 const uploadToGCS = async (file) => {
 	return new Promise((resolve, reject) => {
