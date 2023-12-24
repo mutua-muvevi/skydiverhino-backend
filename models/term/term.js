@@ -59,11 +59,6 @@ const TermSchema = new Schema(
 			ref: "User",
 			index: true,
 		},
-		updatedBy: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			index: true,
-		},
 	},
 	TermSchemaOptions
 );

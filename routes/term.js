@@ -16,7 +16,7 @@ const { fetchAllTerms, fetchTermByID } = require("../controllers/terms/fetch");
 
 //routes
 router.post(
-	"/:userID/new",
+	"/:userID/post",
 	authMiddleware,
 	checkUserExistence,
 	upload.single("file"),
@@ -36,15 +36,11 @@ router.delete(
 	deleteTerm
 );
 router.get(
-	"/:userID/fetch/all",
-	authMiddleware,
-	checkUserExistence,
+	"/fetch/all",
 	fetchAllTerms
 );
 router.get(
-	"/:userID/fetch/single/:termID",
-	authMiddleware,
-	checkUserExistence,
+	"/fetch/single/:termID",
 	fetchTermByID
 );
 
