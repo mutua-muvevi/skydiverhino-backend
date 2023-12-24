@@ -1,5 +1,4 @@
-
-g/**
+/**
  * ## GCP Upload Utility
  *
  * This utility is designed for handling file uploads to Google Cloud Storage.
