@@ -74,6 +74,11 @@ const BlogSchema = new Schema(
 			type: Array,
 			default: [],
 		},
+		updatedBy: {
+			type: Schema.Types.ObjectId,
+			ref: "User",
+			default: null,
+		},
 	}, SchemaOptions
 );
 

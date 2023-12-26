@@ -17,21 +17,56 @@ const logger = require("../../utils/logger");
 const { uploadToGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
+// Helper function to upload file and return their URLs
+async function uploadContentFiles(file) {
+	if (!file || !Array.isArray(file) || file.length < 1) {
+		return [];
+	}
+
+	return Promise.all(
+		file.map((file, index) => {
+			console.log(`Processing file ${index}: `, file);
+			return uploadToGCS(file);
+		})
+	);
+}
+
 //the controller
 exports.createCurriculum = async (req, res, next) => {
-	const { name, description } = req.body;
-	const { file, user } = req;
+	const user = req.user;
+	let { title, introDescription, contentBlocks, tags } = req.body;
+
+	// Extracting thumbnail and content images from the request
+	const thumbnail = req.files.thumbnail;
+	const contentFiles = req.files.file;
 
 	//Step: validate the request body
 	let errors = [];
 
-	if (!name) {
-		errors.push("Name is required");
+	if (!title) {
+		errors.push("Title is required");
+	}
+
+	if (!introDescription) {
+		errors.push("Intro description is required");
+	}
+
+	if (!contentBlocks || contentBlocks.length < 1) {
+		errors.push("Content blocks is required");
+	}
+
+	if (!thumbnail) {
+		errors.push("Thumbnail image is required");
+	}
+
+	//though this is done in the middleware, we still need to check
+	if (!user) {
+		errors.push("User is required");
 	}
 
 	if (errors.length > 0) {
 		logger.warn(
-			`Validation error in createCurriculum Controller: ${errors.join(", ")}`
+			`Validation error in createBlog Controller: ${errors.join(", ")}`
 		);
 		return next(new ErrorResponse(errors.join(", "), 400));
 	}
@@ -39,25 +74,52 @@ exports.createCurriculum = async (req, res, next) => {
 	try {
 		const start = performance.now();
 
-		//upload the file to GCS if file exists
-		let fileUrl
+		//check if curriculum with existing title exists
+		const curriculumExists = await Curriculum.findOne({ title });
 
-		if(file && file !== ""){
-			const startUpload = performance.now();
-
-			fileUrl = await uploadToGCS(file);
-
-			const endUpload = performance.now();
-			logger.info(`Upload time is ${endUpload - startUpload}ms`);
+		if (curriculumExists) {
+			logger.warn(
+				`Validation error in createCurriculum Controller: Curriculum with title ${title} already exists`
+			);
+			return next(
+				new ErrorResponse(
+					`Curriculum with title ${title} already exists`,
+					400
+				)
+			);
 		}
 
-		//create the curriculum
-		const curriculum = await Curriculum.create({
-			name,
-			description,
-			file: fileUrl,
-			uploadedBy: user._id,
+		//upload the thumbnail and content images
+		const startUpload = performance.now();
+
+		const [thumbnailUrl, contentImageUrls] = await Promise.all([
+			uploadToGCS(thumbnail[0]),
+			uploadContentFiles(contentFiles),
+		])
+
+		// Assign each file URL to the corresponding content block
+		const updatedContentBlock = contentBlocks.map((block, index) => {
+			return {
+				...block,
+				file: contentImageUrls[index],
+			};
 		});
+
+		const endUpload = performance.now();
+
+		//creating the curriculum
+		const curriculum = await Curriculum.create({
+			title,
+			introDescription,
+			contentBlocks: updatedContentBlock,
+			thumbnail: thumbnailUrl,
+			author: user._id,
+		});
+
+		if(!curriculum){
+			logger.error(`Error in createCurriculum Controller: Unable to create curriculum`);
+			return next(new ErrorResponse(`Unable to create curriculum`, 400));
+		}
 
 
 		//create notification
@@ -66,6 +128,7 @@ exports.createCurriculum = async (req, res, next) => {
 			type: "create",
 			relatedModel: "Curriculum",
 			relatedModelID: curriculum._id,
+			createdBy: user._id,
 		};
 
 		req.body = notification;
@@ -80,10 +143,12 @@ exports.createCurriculum = async (req, res, next) => {
 			message: "Curriculum created successfully",
 		});
 
-		logger.info(`createCurriculum Controller Execution time: ${end - start} ms.`);
-
+		logger.info(
+			`createCurriculum Controller Execution time: ${end - start} ms.`
+		);
+		logger.info(`Upload time is ${endUpload - startUpload}ms`);
 	} catch (error) {
 		logger.error(`Error in createCurriculum Controller: ${error}`);
-		next(error);
+		return next(new ErrorResponse(error.message, 500));
 	}
 };
