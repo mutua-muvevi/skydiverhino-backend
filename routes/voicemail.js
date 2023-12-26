@@ -19,18 +19,16 @@ router.post(
 	"/:userID/new",
 	authMiddleware,
 	checkUserExistence,
-	upload.single("file"),
 	createVoicemail
 );
 router.put(
 	"/:userID/edit/:voicemailID",
 	authMiddleware,
 	checkUserExistence,
-	upload.single("file"),
 	editVoicemail
 );
 router.delete(
-	"/:userID/delete/:voicemailID",
+	"/:userID/delete/single/:voicemailID",
 	authMiddleware,
 	checkUserExistence,
 	deleteVoicemail

@@ -14,19 +14,26 @@
 const Voicemail = require("../../models/voicemail/voicemail");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const { uploadToGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 //the controller
 exports.createVoicemail = async (req, res, next) => {
-	const { name, description } = req.body;
-	const { file, user } = req;
+	const { name, transcription, type } = req.body;
+	const { user } = req;
 
 	//Step: validate the request body
 	let errors = [];
 
 	if (!name) {
 		errors.push("Name is required");
+	}
+
+	if(!transcription){
+		errors.push("Transcription is required");
+	}
+
+	if(!type){
+		errors.push("Type is required");
 	}
 
 	if (errors.length > 0) {
@@ -38,24 +45,11 @@ exports.createVoicemail = async (req, res, next) => {
 
 	try {
 		const start = performance.now();
-
-		//upload the file to GCS if file exists
-		let fileUrl
-
-		if(file && file !== ""){
-			const startUpload = performance.now();
-
-			fileUrl = await uploadToGCS(file);
-
-			const endUpload = performance.now();
-			logger.info(`Upload time is ${endUpload - startUpload}ms`);
-		}
-
 		//create the voicemail
 		const voicemail = await Voicemail.create({
 			name,
-			description,
-			file: fileUrl,
+			transcription,
+			type,
 			uploadedBy: user._id,
 		});
 

@@ -17,20 +17,27 @@ const mongoose = require("mongoose");
 const Voicemail = require("../../models/voicemail/voicemail");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const { updateInGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 //the controller
 exports.editVoicemail = async (req, res, next) => {
-	const { name, description } = req.body;
+	const { name, transcription, type } = req.body;
 	const { voicemailID } = req.params;
-	const { user, file } = req;
+	const { user } = req;
 
 	//Step: validate the request body
 	let errors = [];
 
 	if (!name) {
 		errors.push("Name is required");
+	}
+
+	if(!type){
+		errors.push("Type is required");
+	}
+
+	if(!transcription){
+		errors.push("Transcription is required");
 	}
 
 	if (!voicemailID || !mongoose.Types.ObjectId.isValid(voicemailID)) {
@@ -62,24 +69,10 @@ exports.editVoicemail = async (req, res, next) => {
 			);
 		}
 
-		//update the file if file exists
-		let fileUrl
-
-		if(file && file !== "" ){
-			const startUpload = performance.now();
-//TODO: if voicemail.file does not exitst in gcs, then upload to gcs
-			const filename = voicemail.file.split("/").pop();
-
-			fileUrl = await updateInGCS(filename, file);
-
-			const endUpload = performance.now();
-			logger.info(`Upload time is ${endUpload - startUpload}ms`);
-		}
-
 		//update the voicemail
 		voicemail.name = name;
-		voicemail.description = description;
-		voicemail.file = file && fileUrl ? fileUrl : voicemail.file;
+		voicemail.transcription = transcription;
+		voicemail.type = type;
 		voicemail.updatedBy = user._id;
 
 		//save the voicemail

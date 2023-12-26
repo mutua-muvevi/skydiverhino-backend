@@ -17,7 +17,6 @@ const mongoose = require("mongoose");
 const Voicemail = require("../../models/voicemail/voicemail");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const { deleteFromGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 //controller
@@ -53,18 +52,6 @@ exports.deleteVoicemail = async (req, res, next) => {
 					401
 				)
 			);
-		}
-
-		//delete file in gcs
-		if(voicemail.file){
-			const startDelete = performance.now();
-
-			const extractFileName = voicemail.file.split("/").pop();
-
-			await deleteFromGCS(extractFileName);
-
-			const endDelete = performance.now();
-			logger.info(`Delete time is ${endDelete - startDelete}ms`);
 		}
 
 		//delete the voicemail
