@@ -34,15 +34,17 @@ const ManualSchema = new Schema(
 			],
 			trim: true,
 		},
+		type: {
+			type: String,
+			enum: {
+				values: ["manual", "safety", "others"],
+				message: "Type should be either manual, safety or others got {VALUE} instead",
+			},
+		},
 		file: {
 			type: String,
 		},
 		uploadedBy: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			index: true,
-		},
-		updatedBy: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
 			index: true,

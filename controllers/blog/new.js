@@ -119,7 +119,7 @@ exports.createBlog = async (req, res, next) => {
 		});
 
 		if (!newBlog) {
-			logger.warn(
+			logger.error(
 				`Something went wrong creating blog with title: ${title}`
 			);
 			return next(

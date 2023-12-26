@@ -47,7 +47,6 @@ router.get(
 	checkUserExistence,
 	fetchManualByID
 )
-console.log("No blockage in routes");
 
 //export
 module.exports = router;

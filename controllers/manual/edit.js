@@ -22,7 +22,7 @@ const { createNotification } = require("../notification/new");
 
 //the controller
 exports.editManual = async (req, res, next) => {
-	const { name, description } = req.body;
+	const { name, description, type } = req.body;
 	const { manualID } = req.params;
 	const { user, file } = req;
 
@@ -79,6 +79,7 @@ exports.editManual = async (req, res, next) => {
 		//update the manual
 		manual.name = name;
 		manual.description = description;
+		manual.type = type;
 		manual.file = file && fileUrl ? fileUrl : manual.file;
 		manual.updatedBy = user._id;
 

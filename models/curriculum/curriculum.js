@@ -14,38 +14,56 @@ const SchemaOptions = {
 	optimisticConcurrency: true,
 };
 
+//contentBlock Schema
+const ContentBlockSchema = new Schema({
+	title: {
+		type: String,
+		minLength: [4, "Minimum characters required for title is 4"],
+		maxLength: [100, "Maximum characters required for title is 100"],
+		trim: true,
+		required: [true, "Title is required"],
+	},
+	details: {
+		type: String,
+		minLength: [20, "Minimum characters required for details is 20"],
+		maxLength: [1000, "Maximum characters required for details is 1000"],
+		trim: true,
+		required: [true, "Content details is required"],
+	},
+	file: {
+		type: String,
+	},
+	list: {
+		type: Array,
+		default: [],
+	},
+});
+
 //manual schema
 const CurriculumSchema = new Schema(
 	{
-		name: {
+		title: {
 			type: String,
-			minLength: [4, "Minimum characters required for name is 4"],
-			maxLength: [100, "Maximum characters required for name is 100"],
+			minLength: [4, "Minimum characters required for title is 4"],
+			maxLength: [100, "Maximum characters required for title is 100"],
 			trim: true,
-			required: [true, "Name is required"],
+			required: [true, "Title is required"],
 			index: true,
 		},
-		description: {
+		introDescription: {
 			type: String,
-			minLength: [4, "Minimum characters required for description is 4"],
-			maxLength: [
-				1000,
-				"Maximum characters required for description is 1000",
-			],
+			minLength: [4, "Minimum characters required for introDescription is 4"],
+			maxLength: [1000, "Maximum characters required for introDescription is 1000"],
 			trim: true,
 		},
-		file: {
+		thumbnail: {
 			type: String,
 		},
-		uploadedBy: {
+		contentBlocks: [ContentBlockSchema],
+		author: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
-			index: true,
-		},
-		updatedBy: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			index: true,
+			required: [true, "Author is required"],
 		},
 	},
 	SchemaOptions

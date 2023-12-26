@@ -19,7 +19,7 @@ const { createNotification } = require("../notification/new");
 
 //the controller
 exports.createManual = async (req, res, next) => {
-	const { name, description } = req.body;
+	const { name, description, type } = req.body;
 	const { file, user } = req;
 
 	//Step: validate the request body
@@ -27,6 +27,10 @@ exports.createManual = async (req, res, next) => {
 
 	if (!name) {
 		errors.push("Name is required");
+	}
+
+	if (!type) {
+		errors.push("Manual type is required");
 	}
 
 	if (errors.length > 0) {
@@ -54,6 +58,7 @@ exports.createManual = async (req, res, next) => {
 		//create the manual
 		const manual = await Manual.create({
 			name,
+			type,
 			description,
 			file: fileUrl,
 			uploadedBy: user._id,
