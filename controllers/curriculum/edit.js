@@ -112,17 +112,17 @@ exports.editCurriculum = async (req, res, next) => {
 		const startUpload = performance.now();
 
 		// Updating the thumbnail if provided
-		let thumbnailUrl = blog.thumbnail;
+		let thumbnailUrl = curriculum.thumbnail;
 		
 		if (thumbnail) {
 			thumbnailUrl = await updateInGCS(
-				blog.thumbnail.split("/").pop(),
+				curriculum.thumbnail.split("/").pop(),
 				thumbnail[0]
 			);
 		}
 		
 		// Updating content block images
-		const existingFileUrls = blog.contentBlocks.map(
+		const existingFileUrls = curriculum.contentBlocks.map(
 			(block) => block.file
 		);
 		const contentFileUrls = await updateImages(
@@ -149,7 +149,7 @@ exports.editCurriculum = async (req, res, next) => {
 
 		//create notification
 		const notification = {
-			details: `Edit curriculum ${name} has been created`,
+			details: `Edit curriculum ${title} has been created`,
 			type: "edit",
 			relatedModel: "Curriculum",
 			relatedModelID: curriculum._id,
