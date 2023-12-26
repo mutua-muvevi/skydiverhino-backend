@@ -2,14 +2,14 @@
  * EDIT MANUAL CONTROLLER
  * ========================
  * Controls the edit curriculum data.
- * 
+ *
  * Steps
  * - Validate the request body
  * - Check if curriculum exists
  * - Update the curriculum
  * - Send a response to the client
  * - Create notification
- * 
+ *
  */
 
 //imports
@@ -20,26 +20,72 @@ const logger = require("../../utils/logger");
 const { updateInGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
+// Helper function to update images and return their URLs
+async function updateImages(newImages, existingUrls) {
+	try {
+		let updatedUrls = [];
+
+		for (let i = 0; i < existingUrls.length; i++) {
+			let oldUrl = existingUrls[i];
+			let newImage = newImages[i];
+
+			// If a new image is provided, update it in GCS and get the new URL
+			if (newImage) {
+				try {
+					let updatedUrl = await updateInGCS(
+						oldUrl.split("/").pop(),
+						newImage
+					);
+					updatedUrls.push(updatedUrl);
+				} catch (error) {
+					throw new Error(`Error updating image: ${error.message}`);
+				}
+			} else {
+				// If no new image, keep the existing URL
+				updatedUrls.push(oldUrl.split("/").pop());
+			}
+		}
+
+		return updatedUrls;
+	} catch (error) {
+		logger.error(`Error updating images: ${error.message}`);
+		return error;
+	}
+}
+
 //the controller
 exports.editCurriculum = async (req, res, next) => {
-	const { name, description } = req.body;
+	const user = req.user;
 	const { curriculumID } = req.params;
-	const { user, file } = req;
+	let { title, introDescription, contentBlocks } = req.body;
+	
+	// Extracting thumbnail and content images from the request
+	const thumbnail = req.files.thumbnail;
+	const contentFiles = req.files.image;
 
 	//Step: validate the request body
 	let errors = [];
 
-	if (!name) {
-		errors.push("Name is required");
+	if (!title) {
+		errors.push("Title is required");
 	}
 
-	if (!curriculumID || !mongoose.Types.ObjectId.isValid(curriculumID)) {
-		errors.push("Curriculum ID is not valid");
+	if (!introDescription) {
+		errors.push("Intro description is required");
+	}
+
+	if (!contentBlocks || contentBlocks.length < 1) {
+		errors.push("Content blocks is required");
+	}
+
+	//though this is done in the middleware, we still need to check
+	if (!user) {
+		errors.push("User is required");
 	}
 
 	if (errors.length > 0) {
 		logger.warn(
-			`Validation error in editCurriculum Controller: ${errors.join(", ")}`
+			`Validation error in editBlog controller: ${errors.join(", ")}`
 		);
 		return next(new ErrorResponse(errors.join(", "), 400));
 	}
@@ -47,44 +93,60 @@ exports.editCurriculum = async (req, res, next) => {
 	try {
 		const start = performance.now();
 
-		//find the curriculum
-		const curriculum = await Curriculum.findOne({
-			_id: curriculumID,
-		});
+		//check if curriculum exists
+		const curriculum = await Curriculum.findById(curriculumID);
 
-		if(!curriculum){
-			logger.warn(`Curriculum with ID: ${curriculumID} not found`);
+		if (!curriculum) {
+			logger.warn(
+				`Curriculum with ID ${curriculumID} does not exist`
+			);
 			return next(
 				new ErrorResponse(
-					"You are not authorized to edit this curriculum",
-					401
+					`Curriculum with ID ${curriculumID} does not exist`,
+					400
 				)
 			);
 		}
 
-		//update the file if file exists
-		let fileUrl
+		//updating the files in GCS
+		const startUpload = performance.now();
 
-		if(file && file !== ""){
-			const startUpload = performance.now();
-
-			const filename = curriculum.file.split("/").pop();
-
-			fileUrl = await updateInGCS(filename, file);
-
-			const endUpload = performance.now();
-			logger.info(`Upload time is ${endUpload - startUpload}ms`);
+		// Updating the thumbnail if provided
+		let thumbnailUrl = blog.thumbnail;
+		
+		if (thumbnail) {
+			thumbnailUrl = await updateInGCS(
+				blog.thumbnail.split("/").pop(),
+				thumbnail[0]
+			);
 		}
+		
+		// Updating content block images
+		const existingFileUrls = blog.contentBlocks.map(
+			(block) => block.image
+		);
+		const contentFileUrls = await updateImages(
+			contentFiles,
+			existingFileUrls
+		);
 
-		//update the curriculum
-		curriculum.name = name;
-		curriculum.description = description;
-		curriculum.file = file && fileUrl ? fileUrl : curriculum.file;
+		// Assign each updated image URL to the corresponding content block
+		const updatedContentBlocks = contentBlocks.map((block, index) => ({
+			...block,
+			image: contentFileUrls[index] || existingFileUrls[index],
+		}));
+
+		const endUpload = performance.now();
+
+		// Update the curriculum
+		curriculum.title = title || curriculum.title;
+		curriculum.introDescription = introDescription || curriculum.introDescription;
+		curriculum.contentBlocks = updatedContentBlocks;
+		curriculum.thumbnail = thumbnailUrl;
 		curriculum.updatedBy = user._id;
 
-		//save the curriculum
 		await curriculum.save();
-		
+
 		//create notification
 		const notification = {
 			details: `Edit curriculum ${name} has been created`,
@@ -105,9 +167,12 @@ exports.editCurriculum = async (req, res, next) => {
 			message: "Curriculum edited successfully",
 		});
 
-		logger.info(`editCurriculum Controller Execution time: ${end - start} ms.`);
+		logger.info(
+			`editCurriculum Controller Execution time: ${end - start} ms.`
+		);
+		logger.info(`Upload time is ${endUpload - startUpload}ms`);
 	} catch (error) {
 		logger.error(`Error in editCurriculum Controller: ${error}`);
-		next(error);
+		return next(new ErrorResponse(error.message, 500));
 	}
 };
