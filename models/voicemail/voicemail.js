@@ -25,24 +25,31 @@ const VoicemailSchema = new Schema(
 			required: [true, "Name is required"],
 			index: true,
 		},
-		description: {
+		transcription: {
 			type: String,
-			minLength: [4, "Minimum characters required for description is 4"],
+			minLength: [4, "Minimum characters required for transcription is 4"],
 			maxLength: [
 				1000,
-				"Maximum characters required for description is 1000",
+				"Maximum characters required for transcription is 1000",
 			],
+			required: [true, "Transcription is required"],
 			trim: true,
 		},
-		file: {
+		type: {
 			type: String,
-		},
-		uploadedBy: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
+			enum: {
+				values: ["voicemail", "fax","follow-up", "others"],
+				message: "{VALUE} is not supported",
+			},
+			required: [true, "Type is required"],
 			index: true,
 		},
-		updatedBy: {
+		date: {
+			type: Date,
+			index: true,
+			default: Date.now(),
+		},
+		uploadedBy: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
 			index: true,
