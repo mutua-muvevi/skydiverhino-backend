@@ -38,7 +38,7 @@ const VoicemailSchema = new Schema(
 		type: {
 			type: String,
 			enum: {
-				values: ["voicemail", "fax","follow-up", "others"],
+				values: ["voicemail", "call", "sms", "email", "others"],
 				message: "{VALUE} is not supported",
 			},
 			required: [true, "Type is required"],

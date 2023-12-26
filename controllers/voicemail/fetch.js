@@ -20,7 +20,13 @@ exports.fetchAllVoicemails = async (req, res, next) => {
 		const start = performance.now();
 
 		//find all voicemails
-		const voicemails = await Voicemail.find().sort({ createdAt: -1 }).lean();
+		const voicemails = await Voicemail.find()
+			.sort({ createdAt: -1 })
+			.lean()
+			.populate({
+				path: "uploadedBy",
+				select: "fullname email",
+			});
 
 		if (!voicemails) {
 			return next(new ErrorResponse("No voicemails found", 404));
@@ -42,7 +48,6 @@ exports.fetchAllVoicemails = async (req, res, next) => {
 	}
 };
 
-
 //fetch a single voicemail by id
 exports.fetchVoicemailByID = async (req, res, next) => {
 	const { voicemailID } = req.params;
@@ -57,7 +62,12 @@ exports.fetchVoicemailByID = async (req, res, next) => {
 		//find the voicemail
 		const voicemail = await Voicemail.findOne({
 			_id: voicemailID,
-		}).lean();
+		})
+			.lean()
+			.populate({
+				path: "uploadedBy",
+				select: "fullname email",
+			});
 
 		if (!voicemail) {
 			return next(new ErrorResponse("Voicemail not found", 404));
