@@ -19,14 +19,20 @@ router.post(
 	"/:userID/new",
 	authMiddleware,
 	checkUserExistence,
-	upload.single("file"),
+	upload.fields([
+		{ name: "thumbnail", maxCount: 1 },
+		{ name: "file", maxCount: 10 },
+	]),
 	createCurriculum
 );
 router.put(
 	"/:userID/edit/:curriculumID",
 	authMiddleware,
 	checkUserExistence,
-	upload.single("file"),
+	upload.fields([
+		{ name: "thumbnail", maxCount: 1 },
+		{ name: "file", maxCount: 10 },
+	]),
 	editCurriculum
 );
 router.delete(

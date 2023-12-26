@@ -20,7 +20,19 @@ exports.fetchAllCurriculums = async (req, res, next) => {
 		const start = performance.now();
 
 		//find all curriculums
-		const curriculums = await Curriculum.find().sort({ createdAt: -1 }).lean();
+		const curriculums = await Curriculum.find()
+			.sort({ createdAt: -1 })
+			.lean()
+			.populate([
+				{
+					path: "author",
+					select: "fullname email",
+				},
+				{
+					path: "updatedBy",
+					select: "fullname email",
+				},
+			]);
 
 		if (!curriculums) {
 			return next(new ErrorResponse("No curriculums found", 404));
@@ -42,7 +54,6 @@ exports.fetchAllCurriculums = async (req, res, next) => {
 	}
 };
 
-
 //fetch a single curriculum by id
 exports.fetchCurriculumByID = async (req, res, next) => {
 	const { curriculumID } = req.params;
@@ -57,7 +68,18 @@ exports.fetchCurriculumByID = async (req, res, next) => {
 		//find the curriculum
 		const curriculum = await Curriculum.findOne({
 			_id: curriculumID,
-		}).lean();
+		})
+			.lean()
+			.populate([
+				{
+					path: "author",
+					select: "fullname email",
+				},
+				{
+					path: "updatedBy",
+					select: "fullname email",
+				},
+			]);
 
 		if (!curriculum) {
 			return next(new ErrorResponse("Curriculum not found", 404));

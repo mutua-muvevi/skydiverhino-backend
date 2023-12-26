@@ -21,27 +21,27 @@ const { updateInGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 // Helper function to update images and return their URLs
-async function updateImages(newImages, existingUrls) {
+async function updateImages(newFiles, existingUrls) {
 	try {
 		let updatedUrls = [];
 
 		for (let i = 0; i < existingUrls.length; i++) {
 			let oldUrl = existingUrls[i];
-			let newImage = newImages[i];
+			let newFile = newFiles[i];
 
-			// If a new image is provided, update it in GCS and get the new URL
-			if (newImage) {
+			// If a new file is provided, update it in GCS and get the new URL
+			if (newFile) {
 				try {
 					let updatedUrl = await updateInGCS(
 						oldUrl.split("/").pop(),
-						newImage
+						newFile
 					);
 					updatedUrls.push(updatedUrl);
 				} catch (error) {
-					throw new Error(`Error updating image: ${error.message}`);
+					throw new Error(`Error updating file: ${error.message}`);
 				}
 			} else {
-				// If no new image, keep the existing URL
+				// If no new file, keep the existing URL
 				updatedUrls.push(oldUrl.split("/").pop());
 			}
 		}
@@ -61,7 +61,7 @@ exports.editCurriculum = async (req, res, next) => {
 	
 	// Extracting thumbnail and content images from the request
 	const thumbnail = req.files.thumbnail;
-	const contentFiles = req.files.image;
+	const contentFiles = req.files.file;
 
 	//Step: validate the request body
 	let errors = [];
@@ -123,17 +123,17 @@ exports.editCurriculum = async (req, res, next) => {
 		
 		// Updating content block images
 		const existingFileUrls = blog.contentBlocks.map(
-			(block) => block.image
+			(block) => block.file
 		);
 		const contentFileUrls = await updateImages(
 			contentFiles,
 			existingFileUrls
 		);
 
-		// Assign each updated image URL to the corresponding content block
+		// Assign each updated file URL to the corresponding content block
 		const updatedContentBlocks = contentBlocks.map((block, index) => ({
 			...block,
-			image: contentFileUrls[index] || existingFileUrls[index],
+			file: contentFileUrls[index] || existingFileUrls[index],
 		}));
 
 		const endUpload = performance.now();

@@ -25,7 +25,6 @@ const { createNotification } = require("../notification/new");
 //helper function to get filename from url
 function getFilenameFromUrl(url) {
 	try {
-		console.log("The url", url)
 		// The filename is typically the last part of the pathname
 		const filename = url.split("/").pop();
 		console.log("The filename", filename)
