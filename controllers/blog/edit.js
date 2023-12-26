@@ -20,7 +20,6 @@ const { updateInGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 // Helper function to update images and return their URLs
-// Helper function to update images and return their URLs
 async function updateImages(newImages, existingUrls) {
 	try {
 		let updatedUrls = [];
@@ -78,8 +77,6 @@ exports.editBlog = async (req, res, next) => {
 		errors.push("Content blocks is required");
 	}
 
-
-
 	//though this is done in the middleware, we still need to check
 	if (!user) {
 		errors.push("User is required");
@@ -96,7 +93,7 @@ exports.editBlog = async (req, res, next) => {
 		const start = performance.now();
 
 		//check if the blog exist
-		const blog = await Blog.findOne({ _id: blogID, author: user._id });
+		const blog = await Blog.findOne({ _id: blogID});
 
 		if (!blog) {
 			logger.warn(`Blog with id: ${blogID} not found`);
@@ -116,8 +113,6 @@ exports.editBlog = async (req, res, next) => {
 			);
 		}
 
-
-
 		// Updating content block images
 		const existingImageUrls = blog.contentBlocks.map(
 			(block) => block.image
@@ -133,8 +128,6 @@ exports.editBlog = async (req, res, next) => {
 			image: contentImageUrls[index] || existingImageUrls[index],
 		}));
 
-		//Asigning each image URL to the coresponding content block
-
 		const endUpload = performance.now();
 
 		//parsiong the tags
@@ -146,6 +139,7 @@ exports.editBlog = async (req, res, next) => {
 		blog.contentBlocks = updatedContentBlocks;
 		blog.tags = tags || blog.tags;
 		blog.thumbnail = thumbnailUrl;
+		blog.updatedBy = user._id;
 
 		await blog.save();
 

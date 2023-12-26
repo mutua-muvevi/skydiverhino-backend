@@ -65,6 +65,11 @@ const CurriculumSchema = new Schema(
 			ref: "User",
 			required: [true, "Author is required"],
 		},
+		updatedBy: {
+			type: Schema.Types.ObjectId,
+			ref: "User",
+			default: null,
+		},
 	},
 	SchemaOptions
 );

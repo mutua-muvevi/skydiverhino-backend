@@ -20,23 +20,28 @@ const logger = require("../../utils/logger");
 const { deleteFromGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
+//helper function to get filename from url
+function getFilenameFromUrl(url) {
+	try {
+		// The filename is typically the last part of the pathname
+		const filename = url.split("/").pop();
+		console.log("The filename", filename)
+
+		return filename;
+	} catch (error) {
+		logger.error(`Error extracting filename from URL: ${error.message}`);
+		return null;
+	}
+}
+
 //controller
 exports.deleteCurriculum = async (req, res, next) => {
 	const { curriculumID } = req.params;
 	const { user } = req;
 
 	//Step: validate the request body
-	let errors = [];
-
 	if (!curriculumID || !mongoose.Types.ObjectId.isValid(curriculumID)) {
-		errors.push("Curriculum ID is not valid");
-	}
-
-	if (errors.length > 0) {
-		logger.warn(
-			`Validation error in deleteCurriculum Controller: ${errors.join(", ")}`
-		);
-		return next(new ErrorResponse(errors.join(", "), 400));
+		return next(new ErrorResponse("Curriculum ID is not valid"));
 	}
 
 	try {
@@ -54,21 +59,31 @@ exports.deleteCurriculum = async (req, res, next) => {
 				)
 			);
 		}
-
-		//delete file in gcs
-		if(curriculum.file){
-			const startDelete = performance.now();
-
-			const extractFileName = curriculum.file.split("/").pop();
-
-			await deleteFromGCS(extractFileName);
-
-			const endDelete = performance.now();
-			logger.info(`Delete time is ${endDelete - startDelete}ms`);
+		
+		//check if the user is authorized to delete the curriculum
+		if (curriculum.author.toString() !== user._id.toString()) {
+			return next(
+				new ErrorResponse("Unauthorized to delete this curriculum", 403)
+			);
 		}
 
+		//delete associated images from GCS
+		const startDelete = performance.now();
+
+		if (curriculum.thumbnail) {
+			await deleteFromGCS(getFilenameFromUrl(curriculum.thumbnail));
+		}
+
+		for (const block of curriculum.contentBlocks) {
+			if (block.image) {
+				await deleteFromGCS(getFilenameFromUrl(block.image));
+			}
+		}
+
+		const endDelete = performance.now();
+
 		//delete the curriculum
-		await Curriculum.findByIdAndDelete(curriculumID);
+		await Curriculum.deleteOne({ _id: curriculumID });
 
 		//create notification
 		const notification = {
@@ -90,6 +105,7 @@ exports.deleteCurriculum = async (req, res, next) => {
 		});
 
 		logger.info(`deleteCurriculum Controller Execution time: ${end - start} ms.`);
+		logger.info(`File deletion time: ${endDelete - startDelete}ms`);
 	} catch (error) {
 		logger.error(`Error in deleteCurriculum Controller: ${error}`);
 		next(error);
