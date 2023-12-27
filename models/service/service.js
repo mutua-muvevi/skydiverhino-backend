@@ -117,11 +117,11 @@ const ServiceSchema = new Schema(
 		introDescription: {
 			type: String,
 			minLength: [20, "Minimum characters required for short description is 20"],
-			maxLength: [250, "Maximum characters required for short description is 250"],
+			maxLength: [2500, "Maximum characters required for short description is 2500"],
 			trim: true,
 		},
 		
-		details: [DescriptionBlockSchema],
+		contentBlocks: [DescriptionBlockSchema],
 		requirements: [RequirementSchema],
 		prices: [PricingSchema],
 		faqs: [FAQSchema],
