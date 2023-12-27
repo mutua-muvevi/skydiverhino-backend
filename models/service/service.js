@@ -80,9 +80,6 @@ const PricingSchema = new Schema({
 			required: [true, "Currency is required"],
 		},
 	},
-	image: {
-		type: String
-	}
 });
 
 
@@ -107,6 +104,9 @@ const FAQSchema = new Schema({
 //the schema
 const ServiceSchema = new Schema(
 	{
+		thumbnail: {
+			type: String,
+		},
 		name: {
 			type: String,
 			minLength: [4, "Minimum characters required for name is 4"],
@@ -114,7 +114,7 @@ const ServiceSchema = new Schema(
 			trim: true,
 			index: true,
 		},
-		shortDescription: {
+		introDescription: {
 			type: String,
 			minLength: [20, "Minimum characters required for short description is 20"],
 			maxLength: [250, "Maximum characters required for short description is 250"],

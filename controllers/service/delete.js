@@ -30,6 +30,21 @@ const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
 
+
+//helper function to get filename from url
+function getFilenameFromUrl(url) {
+	try {
+		// The filename is typically the last part of the pathname
+		const filename = url.split("/").pop();
+		console.log("The filename", filename)
+
+		return filename;
+	} catch (error) {
+		logger.error(`Error extracting filename from URL: ${error.message}`);
+		return null;
+	}
+}
+
 // Delete single service controller
 exports.deleteSingleService = async (req, res, next) => {
 	const { serviceID } = req.params;
@@ -67,6 +82,21 @@ exports.deleteSingleService = async (req, res, next) => {
 			);
 		}
 
+		// Delete associated images from GCS
+		const startDelete = performance.now();
+
+		if (service.thumbnail) {
+			await deleteFromGCS(getFilenameFromUrl(service.thumbnail));
+		}
+
+		for (const block of service.contentBlocks) {
+			if (block.image) {
+				await deleteFromGCS(getFilenameFromUrl(block.image));
+			}
+		}
+
+		const endDelete = performance.now();
+
 		//Step 3: Update the lead.service field if service.leads exists
 		if (service.leads && service.leads.length > 0) {
 			const leadsToUpdate = service.leads.map(
@@ -94,20 +124,21 @@ exports.deleteSingleService = async (req, res, next) => {
 
 		const end = performance.now();
 
+		
+		res.status(200).json({
+			success: true,
+			message: "Service deleted successfully",
+		});
+
 		// Step 6: Log the success
 		logger.info(
 			`Service ${serviceID} deleted successfully by user ${user._id} in ${
 				end - start
 			}ms`
 		);
-
-		res.status(200).json({
-			success: true,
-			message: "Service deleted successfully",
-		});
+		logger.info(`File deletion time: ${endDelete - startDelete}ms`);
 	} catch (error) {
 		logger.error(`Error in deleteSingleService: ${error.message}`);
-		console.error(error);
 		next(error);
 	}
 };

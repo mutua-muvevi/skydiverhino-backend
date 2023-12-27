@@ -16,7 +16,7 @@
 const Blog = require("../../models/blog/blog");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
-const { updateInGCS } = require("../../utils/storage");
+const { updateInGCS, uploadToGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
 
 // Helper function to update images and return their URLs
@@ -31,11 +31,17 @@ async function updateImages(newImages, existingUrls) {
 			// If a new image is provided, update it in GCS and get the new URL
 			if (newImage) {
 				try {
-					let updatedUrl = await updateInGCS(
-						oldUrl.split("/").pop(),
-						newImage
-					);
-					updatedUrls.push(updatedUrl);
+					//if the image does not exist in any of the content blocks, upload it to GCS
+					if(!oldUrl){
+						let updatedUrl = await uploadToGCS(newImage);
+						updatedUrls.push(updatedUrl);
+					}else{
+						let updatedUrl = await updateInGCS(
+							oldUrl.split("/").pop(),
+							newImage
+						);
+						updatedUrls.push(updatedUrl);
+					}
 				} catch (error) {
 					throw new Error(`Error updating image: ${error.message}`);
 				}
@@ -107,10 +113,14 @@ exports.editBlog = async (req, res, next) => {
 		let thumbnailUrl = blog.thumbnail;
 		
 		if (thumbnail) {
-			thumbnailUrl = await updateInGCS(
-				blog.thumbnail.split("/").pop(),
-				thumbnail[0]
-			);
+			if(!thumbnailUrl){
+				thumbnailUrl = await uploadToGCS(thumbnail[0]);
+			} else {
+				thumbnailUrl = await updateInGCS(
+					blog.thumbnail.split("/").pop(),
+					thumbnail[0]
+				);
+			}
 		}
 
 		// Updating content block images
