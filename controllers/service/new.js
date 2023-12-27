@@ -17,37 +17,56 @@
 const Service = require("../../models/service/service");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
+const { uploadToGCS } = require("../../utils/storage");
 const { createNotification } = require("../notification/new");
+
+// Helper function to upload images and return their URLs
+async function uploadImages(images) {
+	if (!images || !Array.isArray(images) || images.length < 1) {
+		return [];
+	}
+
+	return Promise.all(
+		images.map((img, index) => {
+			console.log(`Processing image ${index}: `, img);
+			return uploadToGCS(img);
+		})
+	);
+}
 
 // the controller
 exports.createService = async (req, res, next) => {
-	const {
-		name,
-		shortDescription,
-		details,
-		prices,
-		requirements,
-		faq,
-	} = req.body;
+	const { name, introDescription, contentBlocks, prices, requirements, faq } = req.body;
 	const user = req.user;
+
+	
+	// Extracting thumbnail and content images from the request
+	const thumbnail = req.files.thumbnail;
+	const contentImages = req.files.image;
+	const contentGallery = req.files.gallery;
 
 	// Step: Validate the request body
 	const errors = [];
-	
+
 	if (!name) errors.push("Service name is required");
 
-	if (!shortDescription)
-		errors.push("Service short description is required");
+	if (!introDescription) errors.push("Service short description is required");
 
-	//valitate to ensure that details, prices and requirements are arrays that contains atleast one object
-	if (!Array.isArray(details) || details.length < 1)
+	//valitate to ensure that contentBlocks, prices and requirements are arrays that contains atleast one object
+	if (!contentBlocks)
 		errors.push("Service details is required");
 
-	if (!Array.isArray(prices) || prices.length < 1)
+	if (!prices )
 		errors.push("Service prices is required");
 
-	if (!Array.isArray(requirements) || requirements.length < 1)
+	if (
+		!requirements
+	)
 		errors.push("Service requirements is required");
+
+	if (!thumbnail) {
+		errors.push("Thumbnail image is required");
+	}
 
 	if (errors.length > 0) {
 		logger.warn(
@@ -69,14 +88,42 @@ exports.createService = async (req, res, next) => {
 			);
 		}
 
+		// Upload the images
+		const startUpload = performance.now();
+		console.log("Uploading images", req.files)
+		console.log("Uploading body", req.body)
+		// return res.status(200).json({message: "Uploading images", req})
+
+		const [thumbnailUrl, detailImageUrls, galleryImages] = await Promise.all([
+			uploadToGCS(thumbnail[0]),
+			uploadImages(contentImages),
+			uploadImages(contentGallery),
+		]);
+
+		// Assign each image URL to the corresponding content block
+		const updatedContentBlocks = contentBlocks.map((block, index) => ({
+			...block,
+			image: detailImageUrls[index],
+		}));
+
+
+		const endUpload = performance.now();
+
+		//parsing the stringified fields
+		const parsedPrices = JSON.parse(prices);
+		const parsedRequirements = JSON.parse(requirements);
+		const parsedFAQ = JSON.parse(faq);
+
 		// Create the service
-		const service = new Service({
+		const service = await Service.create({
+			thumbnail: thumbnailUrl,
 			name,
-			shortDescription,
-			details,
-			requirements,
-			prices,
-			faq
+			introDescription,
+			contentBlocks: updatedContentBlocks,
+			requirements: parsedRequirements,
+			prices : parsedPrices,
+			faq :parsedFAQ,
+			gallery: galleryImages,
 		});
 
 		if (!service) {
@@ -90,9 +137,6 @@ exports.createService = async (req, res, next) => {
 				)
 			);
 		}
-
-		// Save the service
-		await service.save();
 
 		// Create a notification
 		const notification = {
@@ -120,6 +164,7 @@ exports.createService = async (req, res, next) => {
 				end - start
 			}ms`
 		);
+		logger.info(`Upload time is ${endUpload - startUpload}ms`);
 	} catch (error) {
 		logger.error(`Error in CreateService Controller: ${error.message}`);
 		next(error);

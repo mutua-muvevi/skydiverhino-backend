@@ -24,6 +24,8 @@ const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
 	// Convert extension to lowercase
 	const ext = path.extname(file.originalname).toLowerCase();
+	console.log("The req are", req.files)
+	console.log("The req gallery is", req.body)
 
 	const allowedExtensions = [
 		".jpg", ".jpeg", ".png",

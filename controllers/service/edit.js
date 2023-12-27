@@ -18,19 +18,65 @@ const Service = require("../../models/service/service");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
+const { updateInGCS, uploadToGCS } = require("../../utils/storage");
+
+
+// Helper function to update images and return their URLs
+async function updateImages(newImages, existingUrls) {
+	try {
+		let updatedUrls = [];
+
+		for (let i = 0; i < existingUrls.length; i++) {
+			let oldUrl = existingUrls[i];
+			let newImage = newImages[i];
+
+			// If a new image is provided, update it in GCS and get the new URL
+			if (newImage) {
+				try {
+					//if the image does not exist in any of the content blocks, upload it to GCS
+					if(!oldUrl){
+						let updatedUrl = await uploadToGCS(newImage);
+						updatedUrls.push(updatedUrl);
+					}else{
+						let updatedUrl = await updateInGCS(
+							oldUrl.split("/").pop(),
+							newImage
+						);
+						updatedUrls.push(updatedUrl);
+					}
+				} catch (error) {
+					throw new Error(`Error updating image: ${error.message}`);
+				}
+			} else {
+				// If no new image, keep the existing URL
+				updatedUrls.push(oldUrl.split("/").pop());
+			}
+		}
+
+		return updatedUrls;
+	} catch (error) {
+		logger.error(`Error updating images: ${error.message}`);
+		return error;
+	}
+}
 
 // controller
 exports.editService = async (req, res, next) => {
 	const {
 		name,
 		shortDescription,
-		details,
+		contentBlocks,
 		prices,
 		requirements,
 		faq,
 	} = req.body;
 	const { serviceID } = req.params;
 	const user = req.user;
+
+	
+	// Extracting thumbnail and content images from the request
+	const thumbnail = req.files.thumbnail;
+	const contentImages = req.files.image;
 
 	// Step: Validate the request body
 	const errors = [];
@@ -40,9 +86,9 @@ exports.editService = async (req, res, next) => {
 	if (!shortDescription)
 		errors.push("Service short description is required");
 
-	//valitate to ensure that details, prices and requirements are arrays that contains atleast one object
-	if (!Array.isArray(details) || details.length < 1)
-		errors.push("Service details is required");
+	//valitate to ensure that contentBlocks, prices and requirements are arrays that contains atleast one object
+	if (!Array.isArray(contentBlocks) || contentBlocks.length < 1)
+		errors.push("Service contentBlocks is required");
 
 	if (!Array.isArray(prices) || prices.length < 1)
 		errors.push("Service prices is required");
@@ -56,17 +102,62 @@ exports.editService = async (req, res, next) => {
 		);
 		return next(new ErrorResponse(errors.join(", "), 400));
 	}
-
-	let updatedService = {};
-
-	if (name) updatedService.name = name;
-	if (details) updatedService.details = details;
-	if (prices) updatedService.prices = prices;
-	if (requirements) updatedService.requirements = requirements;
-	if (faq) updatedService.faq = faq;
-
+	
 	try {
 		const start = performance.now();
+
+		// Check if there is a service with a similar name
+		const existingService = await Service.findOne({ name, _id: serviceID });
+
+		if (!existingService) {
+			logger.error(`Service with id: ${serviceID} does not exist`);
+			return next(new ErrorResponse("Service not found", 404));
+		}
+
+		//updating the files in GCS
+		const startUpload = performance.now();
+
+		// Updating the thumbnail if provided
+		let thumbnailUrl = service.thumbnail;
+		
+		if (thumbnail) {
+			//if service has no thumbnail, upload it
+			if (!thumbnailUrl) {
+				thumbnailUrl = await uploadToGCS(thumbnail[0]);
+			} else {
+				//if service has a thumbnail, update it
+				thumbnailUrl = await updateInGCS(
+					service.thumbnail.split("/").pop(),
+					thumbnail[0]
+				);
+			}
+
+		}
+
+		// Updating content block images
+		const existingImageUrls = service.contentBlocks.map(
+			(block) => block.image
+		);
+		const contentImageUrls = await updateImages(
+			contentImages,
+			existingImageUrls
+		);
+
+		// Assign each updated image URL to the corresponding content block
+		const updatedContentBlocks = contentBlocks.map((block, index) => ({
+			...block,
+			image: contentImageUrls[index] || existingImageUrls[index],
+		}));
+
+		const endUpload = performance.now();
+	
+		let updatedService = {};
+	
+		if (name) updatedService.name = name;
+		if (contentBlocks) updatedService.contentBlocks = updatedContentBlocks;
+		if (prices) updatedService.prices = prices;
+		if (requirements) updatedService.requirements = requirements;
+		if (faq) updatedService.faq = faq;
 
 		// Find the service and update
 		const service = await Service.findOneAndUpdate(
@@ -106,6 +197,7 @@ exports.editService = async (req, res, next) => {
 				user._id
 			}} in ${end - start}ms`
 		);
+		logger.info(`Upload time is ${endUpload - startUpload}ms`);
 	} catch (error) {
 		logger.error(`Error in EditService Controller: ${error.message}`);
 		next(error);

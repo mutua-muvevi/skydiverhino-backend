@@ -30,7 +30,6 @@ module.exports.authMiddleware = (req, res, next) => {
 			logger.error("Invalid headers");
 			return next(new ErrorResponse("Invalid Headers", 400));
 		}
-		console.log("THE REQUEST PARAMS ARE", req.header)
 
 		// Step 2: Retrieve the token from the header
 		const tokenParts = req.headers.authorization.split(" ");

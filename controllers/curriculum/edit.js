@@ -78,6 +78,10 @@ exports.editCurriculum = async (req, res, next) => {
 		errors.push("Content blocks is required");
 	}
 
+	if(!curriculumID || !mongoose.Types.ObjectId.isValid(curriculumID)) {
+		errors.push("Curriculum ID is required");
+	}
+
 	//though this is done in the middleware, we still need to check
 	if (!user) {
 		errors.push("User is required");

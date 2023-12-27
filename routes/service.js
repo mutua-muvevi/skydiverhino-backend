@@ -4,6 +4,7 @@ const router = express.Router();
 //middlewares
 const { authMiddleware } = require("../middlewares/authentication");
 const checkUserExistence = require("../middlewares/checkuser");
+const { upload } = require("../utils/multer");
 
 // controller inputs
 const { createService } = require("../controllers/service/new");
@@ -18,35 +19,64 @@ const {
 } = require("../controllers/service/delete");
 
 //details controller inputs
-const { addDetail, editDetail, deleteSingleDetail, deleteManyDetails } = require("../controllers/service/details");
+const {
+	addDetail,
+	editDetail,
+	deleteSingleDetail,
+	deleteManyDetails,
+} = require("../controllers/service/details");
 
 //requirement controller inputs
-const { addRequirement, editRequirement, deleteSingleRequirement, deleteManyRequirements } = require("../controllers/service/requirement");
+const {
+	addRequirement,
+	editRequirement,
+	deleteSingleRequirement,
+	deleteManyRequirements,
+} = require("../controllers/service/requirement");
 
 //price controller inputs
-const { addPrice, editPrice, deleteSinglePrice, deleteManyPrices } = require("../controllers/service/prices");
+const {
+	addPrice,
+	editPrice,
+	deleteSinglePrice,
+	deleteManyPrices,
+} = require("../controllers/service/prices");
 
 //faq controller inputs
-const { addFAQ, editFAQ, deleteSingleFAQ, deleteManyFAQs } = require("../controllers/service/faq");
+const {
+	addFAQ,
+	editFAQ,
+	deleteSingleFAQ,
+	deleteManyFAQs,
+} = require("../controllers/service/faq");
 
 //routes
-router.post("/:userID/post", authMiddleware, checkUserExistence, createService);
+router.post(
+	"/:userID/post",
+	authMiddleware,
+	checkUserExistence,
+	upload.fields([
+		{ name: "thumbnail", maxCount: 1 },
+		{ name: "image", maxCount: 10 },
+		{ name: "gallery", maxCount: 10 },
+	]),
+	createService
+);
 router.put(
 	"/:userID/edit/:serviceID",
 	authMiddleware,
 	checkUserExistence,
+	upload.fields([
+		{ name: "thumbnail", maxCount: 1 },
+		{ name: "image", maxCount: 10 },
+		{ name: "gallery", maxCount: 50 },
+	]),
 	editService
 );
 
 //fetch services
-router.get(
-	"/fetch/all",
-	fetchAllServices
-);
-router.get(
-	"/fetch/single/:serviceID",
-	fetchServiceByID
-);
+router.get("/fetch/all", fetchAllServices);
+router.get("/fetch/single/:serviceID", fetchServiceByID);
 router.delete(
 	"/:userID/delete/single/:serviceID",
 	authMiddleware,
