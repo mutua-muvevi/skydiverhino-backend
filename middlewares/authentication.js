@@ -25,6 +25,7 @@ const logger = require("../utils/logger");
 
 module.exports.authMiddleware = (req, res, next) => {
 	try {
+		console.log("The request body is: ", req.body)
 		// Step 1: Check the presence of the 'authorization' header
 		if (!req.headers || !req.headers.authorization) {
 			logger.error("Invalid headers");

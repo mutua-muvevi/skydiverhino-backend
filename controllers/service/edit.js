@@ -20,7 +20,6 @@ const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
 const { updateInGCS, uploadToGCS } = require("../../utils/storage");
 
-
 // Helper function to update images and return their URLs
 async function updateImages(newImages, existingUrls) {
 	try {
@@ -34,10 +33,10 @@ async function updateImages(newImages, existingUrls) {
 			if (newImage) {
 				try {
 					//if the image does not exist in any of the content blocks, upload it to GCS
-					if(!oldUrl){
+					if (!oldUrl) {
 						let updatedUrl = await uploadToGCS(newImage);
 						updatedUrls.push(updatedUrl);
-					}else{
+					} else {
 						let updatedUrl = await updateInGCS(
 							oldUrl.split("/").pop(),
 							newImage
@@ -62,52 +61,44 @@ async function updateImages(newImages, existingUrls) {
 
 // controller
 exports.editService = async (req, res, next) => {
-	const {
-		name,
-		shortDescription,
-		contentBlocks,
-		prices,
-		requirements,
-		faq,
-	} = req.body;
+	const { name, shortDescription, contentBlocks, prices, requirements, faqs } =
+		req.body;
 	const { serviceID } = req.params;
 	const user = req.user;
 
-	
 	// Extracting thumbnail and content images from the request
 	const thumbnail = req.files.thumbnail;
 	const contentImages = req.files.image;
 
 	// Step: Validate the request body
 	const errors = [];
-	
+
 	if (!name) errors.push("Service name is required");
 
-	if (!shortDescription)
-		errors.push("Service short description is required");
+	if (!shortDescription) errors.push("Service short description is required");
 
 	//valitate to ensure that contentBlocks, prices and requirements are arrays that contains atleast one object
-	if (!Array.isArray(contentBlocks) || contentBlocks.length < 1)
-		errors.push("Service contentBlocks is required");
+	if (!contentBlocks) errors.push("Service contentBlocks is required");
 
-	if (!Array.isArray(prices) || prices.length < 1)
-		errors.push("Service prices is required");
+	if (!prices) errors.push("Service prices is required");
 
-	if (!Array.isArray(requirements) || requirements.length < 1)
-		errors.push("Service requirements is required");
+	if (!requirements) errors.push("Service requirements is required");
 
-	if (errors.length > 0) {
+	if (!serviceID || !mongoose.isValidObjectId(serviceID))
+		errors.push("Service ID is required and must be a valid ID");
+
+	if (!errors.length > 0) {
 		logger.warn(
 			`Validation error in CreateService Controller: ${errors.join(", ")}`
 		);
 		return next(new ErrorResponse(errors.join(", "), 400));
 	}
-	
+
 	try {
 		const start = performance.now();
 
 		// Check if there is a service with a similar name
-		const existingService = await Service.findOne({ name, _id: serviceID });
+		const existingService = await Service.findOne({ _id: serviceID });
 
 		if (!existingService) {
 			logger.error(`Service with id: ${serviceID} does not exist`);
@@ -118,8 +109,8 @@ exports.editService = async (req, res, next) => {
 		const startUpload = performance.now();
 
 		// Updating the thumbnail if provided
-		let thumbnailUrl = service.thumbnail;
-		
+		let thumbnailUrl = existingService.thumbnail;
+
 		if (thumbnail) {
 			//if service has no thumbnail, upload it
 			if (!thumbnailUrl) {
@@ -127,15 +118,14 @@ exports.editService = async (req, res, next) => {
 			} else {
 				//if service has a thumbnail, update it
 				thumbnailUrl = await updateInGCS(
-					service.thumbnail.split("/").pop(),
+					existingService.thumbnail.split("/").pop(),
 					thumbnail[0]
 				);
 			}
-
 		}
 
 		// Updating content block images
-		const existingImageUrls = service.contentBlocks.map(
+		const existingImageUrls = existingService.contentBlocks.map(
 			(block) => block.image
 		);
 		const contentImageUrls = await updateImages(
@@ -150,14 +140,14 @@ exports.editService = async (req, res, next) => {
 		}));
 
 		const endUpload = performance.now();
-	
+
 		let updatedService = {};
-	
+
 		if (name) updatedService.name = name;
 		if (contentBlocks) updatedService.contentBlocks = updatedContentBlocks;
 		if (prices) updatedService.prices = prices;
 		if (requirements) updatedService.requirements = requirements;
-		if (faq) updatedService.faq = faq;
+		if (faqs) updatedService.faqs = faqs;
 
 		// Find the service and update
 		const service = await Service.findOneAndUpdate(
