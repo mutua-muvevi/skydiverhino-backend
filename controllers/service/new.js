@@ -53,20 +53,13 @@ exports.createService = async (req, res, next) => {
 	if (!introDescription) errors.push("Service short description is required");
 
 	//valitate to ensure that contentBlocks, prices and requirements are arrays that contains atleast one object
-	if (!contentBlocks)
-		errors.push("Service details is required");
+	if (!contentBlocks) errors.push("Service details is required");
 
-	if (!prices )
-		errors.push("Service prices is required");
+	if (!prices ) errors.push("Service prices is required");
 
-	if (
-		!requirements
-	)
-		errors.push("Service requirements is required");
+	if (!requirements) errors.push("Service requirements is required");
 
-	if (!thumbnail) {
-		errors.push("Thumbnail image is required");
-	}
+	if (!thumbnail) errors.push("Thumbnail image is required");
 
 	if (errors.length > 0) {
 		logger.warn(
@@ -90,9 +83,6 @@ exports.createService = async (req, res, next) => {
 
 		// Upload the images
 		const startUpload = performance.now();
-		console.log("Uploading images", req.files)
-		console.log("Uploading body", req.body)
-		// return res.status(200).json({message: "Uploading images", req})
 
 		const [thumbnailUrl, detailImageUrls, galleryImages] = await Promise.all([
 			uploadToGCS(thumbnail[0]),
@@ -122,7 +112,7 @@ exports.createService = async (req, res, next) => {
 			contentBlocks: updatedContentBlocks,
 			requirements: parsedRequirements,
 			prices : parsedPrices,
-			faq :parsedFAQ,
+			faqs :parsedFAQ,
 			gallery: galleryImages,
 		});
 
