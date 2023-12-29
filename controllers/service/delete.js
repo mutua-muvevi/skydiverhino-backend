@@ -29,14 +29,14 @@ const Lead = require("../../models/lead/lead");
 const ErrorResponse = require("../../utils/errorResponse");
 const logger = require("../../utils/logger");
 const { createNotification } = require("../notification/new");
-
+const { deleteFromGCS } = require("../../utils/storage");
 
 //helper function to get filename from url
 function getFilenameFromUrl(url) {
 	try {
 		// The filename is typically the last part of the pathname
 		const filename = url.split("/").pop();
-		console.log("The filename", filename)
+		console.log("The filename", filename);
 
 		return filename;
 	} catch (error) {
@@ -85,15 +85,37 @@ exports.deleteSingleService = async (req, res, next) => {
 		// Delete associated images from GCS
 		const startDelete = performance.now();
 
+		const deleteOperations = [];
+
+		// Delete the thumbnail
 		if (service.thumbnail) {
-			await deleteFromGCS(getFilenameFromUrl(service.thumbnail));
+			deleteOperations.push(
+				deleteFromGCS(getFilenameFromUrl(service.thumbnail))
+			);
 		}
 
 		for (const block of service.contentBlocks) {
 			if (block.image) {
-				await deleteFromGCS(getFilenameFromUrl(block.image));
+				deleteOperations.push(
+					deleteFromGCS(getFilenameFromUrl(block.image))
+				);
 			}
 		}
+		// Delete the gallery images
+		for (const image of service.gallery) {
+			deleteOperations.push(deleteFromGCS(getFilenameFromUrl(image)));
+		}
+
+		//using promise all to delete all images
+		await Promise.all(deleteOperations).catch((error) => {
+			logger.error(`Error deleting images from GCS: ${error}`);
+			// return next(
+			// 	new ErrorResponse(
+			// 		`Error deleting from cloud: ${JSON.stringify(error)}`,
+			// 		500
+			// 	)
+			// );
+		});
 
 		const endDelete = performance.now();
 
@@ -124,7 +146,6 @@ exports.deleteSingleService = async (req, res, next) => {
 
 		const end = performance.now();
 
-		
 		res.status(200).json({
 			success: true,
 			message: "Service deleted successfully",
@@ -165,7 +186,6 @@ exports.deleteManyServices = async (req, res, next) => {
 			_id: { $in: serviceIDs },
 		});
 
-		
 		if (services.length !== serviceIDs.length) {
 			logger.warn("Some services not found or not authorized");
 			return next(
