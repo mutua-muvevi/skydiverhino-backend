@@ -21,7 +21,9 @@ const { createNotification } = require("../notification/new");
 exports.createEvent = async (req, res, next) => {
 	const user = req.user;
 	let { name, description, date, venue } = req.body;
-	let thumbnail = req.file.thumbnail;
+	let thumbnail = req.file;
+
+	console.log("THUMBNAIL", thumbnail);
 
 	//Step: validate the request body
 	let errors = [];

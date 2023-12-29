@@ -5,11 +5,10 @@ const router = express.Router();
 const { authMiddleware } = require("../middlewares/authentication");
 const checkUserExistence = require("../middlewares/checkuser");
 const { upload } = require("../utils/multer");
-
 // controller inputs
-const { createEvent } = require("../controllers/event/new");
-const { editEvent } = require("../controllers/event/edit");
 const { deleteEvent } = require("../controllers/event/delete");
+const { editEvent } = require("../controllers/event/edit");
+const { createEvent } = require("../controllers/event/new");
 const {
 	fetchAllEvents,
 	fetchEventByID,
@@ -36,7 +35,7 @@ router.get("/fetch/all", fetchAllEvents);
 router.get("/fetch/:eventID", fetchEventByID);
 
 router.delete(
-	"/:userID/delete/single/:eventID",
+	"/:userID/delete/:eventID",
 	authMiddleware,
 	checkUserExistence,
 	deleteEvent
