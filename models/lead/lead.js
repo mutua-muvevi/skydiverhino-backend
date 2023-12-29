@@ -81,6 +81,7 @@ const LeadSchema = new Schema(
 			enum: {
 				values: [
 					"Google",
+					"Contact Form",
 					"Email",
 					"Phone",
 					"Website",
