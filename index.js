@@ -48,7 +48,6 @@ app.use("/api/announcement", require("./routes/announcement"));
 app.use("/api/term", require("./routes/term"));
 app.use("/api/event", require("./routes/event"));
 
-
 //error middleware
 app.use(errorHandler);
 

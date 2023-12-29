@@ -25,7 +25,7 @@ const { createNotification } = require("../notification/new");
 exports.editEvent = async (req, res, next) => {
 	const user = req.user;
 	let { name, description, date, venue } = req.body;
-	let thumbnail = req.file.thumbnail;
+	let thumbnail = req.file;
 	const { eventID } = req.params;
 
 	//Step: validate the request body
@@ -37,7 +37,7 @@ exports.editEvent = async (req, res, next) => {
 
 	if (!date) errors.push("Date is required");
 
-	if(!eventID || mongoose.isValidObjectId(eventID)) errors.push("Event ID is required");
+	if(!eventID || !mongoose.isValidObjectId(eventID)) errors.push("Event ID is required");
 
 	if (errors.length > 0) {
 		logger.warn(`Validation Error in edit event: ${errors}`);
