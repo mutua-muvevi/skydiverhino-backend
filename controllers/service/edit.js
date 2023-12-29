@@ -89,13 +89,6 @@ exports.editService = async (req, res, next) => {
 			return next(new ErrorResponse("Service not found", 404));
 		}
 
-		console.log("Existing service", existingService);
-		console.log("=====================================");
-		console.log("Gallery", contentGallery);
-		console.log("=====================================");
-		console.log("Content block images", contentImages);
-		console.log("=====================================");
-
 		//Loop through the contentBlocks
 		const existingImageUrls =
 			existingService.contentBlocks.map((block) => block.image) || [];

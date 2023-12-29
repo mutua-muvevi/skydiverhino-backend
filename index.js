@@ -46,6 +46,7 @@ app.use("/api/storage", require("./routes/storage"));
 app.use("/api/blog", require("./routes/blog"));
 app.use("/api/announcement", require("./routes/announcement"));
 app.use("/api/term", require("./routes/term"));
+app.use("/api/event", require("./routes/event"));
 
 
 //error middleware
