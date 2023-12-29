@@ -68,6 +68,7 @@ const NotificationSchema = new Schema(
 					"Announcement",
 					"Curriculum",
 					"Voicemail",
+					"Event",
 				],
 				message: "{VALUE} is not supported",
 			},
