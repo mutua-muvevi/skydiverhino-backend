@@ -108,13 +108,13 @@ exports.deleteSingleService = async (req, res, next) => {
 
 		//using promise all to delete all images
 		await Promise.all(deleteOperations).catch((error) => {
-			logger.error(`Error deleting images from GCS: ${error.message}`);
-			return next(
-				new ErrorResponse(
-					`Error deleting from cloud: ${JSON.stringify(error)}`,
-					500
-				)
-			);
+			logger.error(`Error deleting images from GCS: ${error}`);
+			// return next(
+			// 	new ErrorResponse(
+			// 		`Error deleting from cloud: ${JSON.stringify(error)}`,
+			// 		500
+			// 	)
+			// );
 		});
 
 		const endDelete = performance.now();
