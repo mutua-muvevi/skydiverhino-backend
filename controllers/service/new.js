@@ -36,14 +36,22 @@ async function uploadImages(images) {
 
 // the controller
 exports.createService = async (req, res, next) => {
-	const { name, introDescription, contentBlocks, prices, requirements, faq } = req.body;
+	const {
+		name,
+		introDescription,
+		contentBlocks,
+		prices,
+		requirements,
+		faqs,
+	} = req.body;
 	const user = req.user;
 
-	
 	// Extracting thumbnail and content images from the request
 	const thumbnail = req.files.thumbnail;
 	const contentImages = req.files.image;
 	const contentGallery = req.files.gallery;
+	const priceBackgroundImage = req.files.priceImage;
+	const faqBackgroundImage = req.files.faqImage;
 
 	// Step: Validate the request body
 	const errors = [];
@@ -55,11 +63,15 @@ exports.createService = async (req, res, next) => {
 	//valitate to ensure that contentBlocks, prices and requirements are arrays that contains atleast one object
 	if (!contentBlocks) errors.push("Service details is required");
 
-	if (!prices ) errors.push("Service prices is required");
+	if (!prices) errors.push("Service prices is required");
 
 	if (!requirements) errors.push("Service requirements is required");
 
 	if (!thumbnail) errors.push("Thumbnail image is required");
+
+	if (!priceBackgroundImage) errors.push("Price background image is required");
+
+	if (!faqBackgroundImage) errors.push("FAQ background image is required");
 
 	if (errors.length > 0) {
 		logger.warn(
@@ -84,11 +96,14 @@ exports.createService = async (req, res, next) => {
 		// Upload the images
 		const startUpload = performance.now();
 
-		const [thumbnailUrl, detailImageUrls, galleryImages] = await Promise.all([
-			uploadToGCS(thumbnail[0]),
-			uploadImages(contentImages),
-			uploadImages(contentGallery),
-		]);
+		const [thumbnailUrl, detailImageUrls, galleryImages, priceImage, faqImage] =
+			await Promise.all([
+				uploadToGCS(thumbnail[0]),
+				uploadImages(contentImages),
+				uploadImages(contentGallery),
+				uploadToGCS(priceBackgroundImage[0]),
+				uploadToGCS(faqBackgroundImage[0]),
+			]);
 
 		// Assign each image URL to the corresponding content block
 		const updatedContentBlocks = contentBlocks.map((block, index) => ({
@@ -96,13 +111,12 @@ exports.createService = async (req, res, next) => {
 			image: detailImageUrls[index],
 		}));
 
-
 		const endUpload = performance.now();
 
 		//parsing the stringified fields
 		const parsedPrices = JSON.parse(prices);
 		const parsedRequirements = JSON.parse(requirements);
-		const parsedFAQ = JSON.parse(faq);
+		const parsedFAQ = JSON.parse(faqs);
 
 		// Create the service
 		const service = await Service.create({
@@ -111,9 +125,11 @@ exports.createService = async (req, res, next) => {
 			introDescription,
 			contentBlocks: updatedContentBlocks,
 			requirements: parsedRequirements,
-			prices : parsedPrices,
-			faqs :parsedFAQ,
+			prices: parsedPrices,
+			faqs: parsedFAQ,
 			gallery: galleryImages,
+			priceImage,
+			faqImage,
 		});
 
 		if (!service) {

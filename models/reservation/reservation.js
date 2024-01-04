@@ -94,6 +94,10 @@ const ReservationSchema = new Schema(
 			required: [true, "Date is required"],
 			index: true,
 		},
+		time: {
+			type: String,
+			index: true,
+		},
 		participants: [ParticipantsSchema],
 		agreements: [AgreementSchema],
 		service: {

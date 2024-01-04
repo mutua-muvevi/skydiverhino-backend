@@ -59,6 +59,8 @@ router.post(
 		{ name: "thumbnail", maxCount: 1 },
 		{ name: "image", maxCount: 10 },
 		{ name: "gallery", maxCount: 10 },
+		{ name: "priceImage", maxCount: 1 },
+		{ name: "faqImage", maxCount: 1 },
 	]),
 	createService
 );
@@ -70,6 +72,8 @@ router.put(
 		{ name: "thumbnail", maxCount: 1 },
 		{ name: "image", maxCount: 10 },
 		{ name: "gallery", maxCount: 50 },
+		{ name: "priceImage", maxCount: 1 },
+		{ name: "faqImage", maxCount: 1 },
 	]),
 	editService
 );
