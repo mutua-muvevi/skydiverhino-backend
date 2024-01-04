@@ -19,10 +19,9 @@ const ServiceSchemaOptions = {
 const DescriptionBlockSchema = new Schema({
 	title: {
 		type: String,
-		minLength: [4, "Minimum characters required for title is 4"],
+		minLength: [4, "Minimum characters required for content clock title is 4"],
 		maxLength: [100, "Maximum characters required for title is 100"],
 		trim: true,
-		required: [true, "Title is required"],
 	},
 	details: {
 		type: String,
@@ -40,7 +39,7 @@ const DescriptionBlockSchema = new Schema({
 const RequirementSchema = new Schema({
 	title: {
 		type: String,
-		minLength: [4, "Minimum characters required for title is 4"],
+		minLength: [4, "Minimum characters required for requirement title is 4"],
 		maxLength: [100, "Maximum characters required for title is 100"],
 		trim: true,
 		required: [true, "Requirement title is required"],
@@ -58,7 +57,7 @@ const RequirementSchema = new Schema({
 const PricingSchema = new Schema({
 	title: {
 		type: String,
-		minLength: [4, "Minimum characters required for title is 4"],
+		minLength: [4, "Minimum characters required for  pricing title is 4"],
 		maxLength: [100, "Maximum characters required for title is 100"],
 		trim: true,
 	},
@@ -123,8 +122,17 @@ const ServiceSchema = new Schema(
 		
 		contentBlocks: [DescriptionBlockSchema],
 		requirements: [RequirementSchema],
+
 		prices: [PricingSchema],
+		priceImage: {
+			type: String,
+		},
+
+
 		faqs: [FAQSchema],
+		faqImage: {
+			type: String,
+		},
 		
 		leads: [
 			{

@@ -10,7 +10,10 @@ const {
 	fetchAllReservations,
 	fetchReservationByID,
 } = require("../controllers/reservation/fetch");
-const { deleteReservation, deleteReservations } = require("../controllers/reservation/delete");
+const {
+	deleteReservation,
+	deleteReservations,
+} = require("../controllers/reservation/delete");
 
 //routes
 router.post("/post", createReservation);

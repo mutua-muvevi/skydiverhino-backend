@@ -21,7 +21,7 @@ const { createNotification } = require("../notification/new");
 
 // controller
 exports.createReservation = async (req, res, next) => {
-	const { date, participants, agreements, service } = req.body;
+	const { date, time, participants, agreements, service } = req.body;
 
 	//Step: validate the request body
 	let errors = [];
@@ -52,6 +52,7 @@ exports.createReservation = async (req, res, next) => {
 		//create the booking
 		const booking = await Reservation.create({
 			date,
+			time,
 			participants,
 			agreements,
 			service
