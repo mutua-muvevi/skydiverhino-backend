@@ -43,6 +43,7 @@ exports.createService = async (req, res, next) => {
 		prices,
 		requirements,
 		faqs,
+		slug,
 	} = req.body;
 	const user = req.user;
 
@@ -60,6 +61,9 @@ exports.createService = async (req, res, next) => {
 
 	if (!introDescription) errors.push("Service short description is required");
 
+	if (!slug || !["aff", "tandem"].includes(slug))
+		errors.push("Service slug must be either 'aff' or 'tandem'");
+
 	//valitate to ensure that contentBlocks, prices and requirements are arrays that contains atleast one object
 	if (!contentBlocks) errors.push("Service details is required");
 
@@ -69,7 +73,8 @@ exports.createService = async (req, res, next) => {
 
 	if (!thumbnail) errors.push("Thumbnail image is required");
 
-	if (!priceBackgroundImage) errors.push("Price background image is required");
+	if (!priceBackgroundImage)
+		errors.push("Price background image is required");
 
 	if (!faqBackgroundImage) errors.push("FAQ background image is required");
 
@@ -96,14 +101,19 @@ exports.createService = async (req, res, next) => {
 		// Upload the images
 		const startUpload = performance.now();
 
-		const [thumbnailUrl, detailImageUrls, galleryImages, priceImage, faqImage] =
-			await Promise.all([
-				uploadToGCS(thumbnail[0]),
-				uploadImages(contentImages),
-				uploadImages(contentGallery),
-				uploadToGCS(priceBackgroundImage[0]),
-				uploadToGCS(faqBackgroundImage[0]),
-			]);
+		const [
+			thumbnailUrl,
+			detailImageUrls,
+			galleryImages,
+			priceImage,
+			faqImage,
+		] = await Promise.all([
+			uploadToGCS(thumbnail[0]),
+			uploadImages(contentImages),
+			uploadImages(contentGallery),
+			uploadToGCS(priceBackgroundImage[0]),
+			uploadToGCS(faqBackgroundImage[0]),
+		]);
 
 		// Assign each image URL to the corresponding content block
 		const updatedContentBlocks = contentBlocks.map((block, index) => ({
@@ -122,6 +132,7 @@ exports.createService = async (req, res, next) => {
 		const service = await Service.create({
 			thumbnail: thumbnailUrl,
 			name,
+			slug,
 			introDescription,
 			contentBlocks: updatedContentBlocks,
 			requirements: parsedRequirements,

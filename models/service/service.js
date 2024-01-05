@@ -106,6 +106,14 @@ const ServiceSchema = new Schema(
 		thumbnail: {
 			type: String,
 		},
+		slug: {
+			type: String,
+			enum: {
+				values: ["aff", "tandem"],
+				message: "The slug must be either 'aff' or 'tandem' instead received {VALUE}",
+			},
+			required: [true, "Service slug is required"],
+		},
 		name: {
 			type: String,
 			minLength: [4, "Minimum characters required for name is 4"],
