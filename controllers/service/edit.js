@@ -53,6 +53,7 @@ async function addNewGalleryImages(newImages) {
 exports.editService = async (req, res, next) => {
 	const {
 		name,
+		slug,
 		introDescription,
 		contentBlocks,
 		prices,
@@ -69,6 +70,8 @@ exports.editService = async (req, res, next) => {
 	const errors = [];
 	if (!name) errors.push("Service name is required");
 	if (!introDescription) errors.push("Service short description is required");
+	if (!slug || !["aff", "tandem"].includes(slug))
+		errors.push("Service slug must be either 'aff' or 'tandem'");
 	if (!contentBlocks) errors.push("Service contentBlocks is required");
 	if (!prices) errors.push("Service prices is required");
 	if (!requirements) errors.push("Service requirements is required");
@@ -151,6 +154,7 @@ exports.editService = async (req, res, next) => {
 			faqs: JSON.parse(faqs),
 			thumbnail: thumbnailUrl[0],
 			gallery: updatedGallery,
+			slug,
 		};
 
 		const service = await Service.findOneAndUpdate(
