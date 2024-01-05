@@ -65,8 +65,6 @@ exports.editService = async (req, res, next) => {
 	const thumbnail = req.files.thumbnail;
 	const contentImages = req.files.image;
 	const contentGallery = req.files.gallery;
-	const priceBackgroundImage = req.files.priceImage;
-	const faqBackgroundImage = req.files.faqImage;
 
 	const errors = [];
 	if (!name) errors.push("Service name is required");
@@ -85,19 +83,23 @@ exports.editService = async (req, res, next) => {
 	}
 
 	try {
+		//Check if the service exists
 		const existingService = await Service.findOne({ _id: serviceID });
 		if (!existingService) {
 			return next(new ErrorResponse("Service not found", 404));
 		}
 
+        // Ensure contentImages and contentGallery are arrays
 		const contentImageFiles = Array.isArray(contentImages)
-			? contentImages
-			: [contentImages].filter((img) => img);
+        ? contentImages
+        : [contentImages].filter((img) => img);
 
+        //Loop through the contentBlocks
 		const existingImageUrls =
-			existingService.contentBlocks.map((block) => block.image) || [];
-		const existingGalleryUrls = existingService.gallery || [];
+        existingService.contentBlocks.map((block) => block.image) || [];
+    const existingGalleryUrls = existingService.gallery || [];
 
+		// Update images for content blocks
 		let updatedContentImageUrls = [];
 		if (contentImages) {
 			updatedContentImageUrls = await updateImages(
@@ -106,39 +108,27 @@ exports.editService = async (req, res, next) => {
 			);
 		}
 
+		
+
+		
+
 		const contentGalleryFiles = Array.isArray(contentGallery)
 			? contentGallery
 			: [contentGallery].filter((img) => img);
 
-		const [
-			thumbnailUrl,
-			contentImageUrls,
-			galleryImageUrls,
-			priceImage,
-			faqImage,
-		] = await Promise.all([
-			thumbnail
-				? updateImages([thumbnail[0]], [existingService.thumbnail])
-				: Promise.resolve([existingService.thumbnail]),
-			contentImages
-				? updateImages(contentImageFiles, existingImageUrls)
-				: Promise.resolve(existingImageUrls),
-			contentGallery
-				? addNewGalleryImages(contentGalleryFiles)
-				: Promise.resolve(existingGalleryUrls),
-			priceBackgroundImage
-				? updateImages(
-						[priceBackgroundImage[0]],
-						[existingService.priceBackgroundImage]
-				  )
-				: Promise.resolve([existingService.priceBackgroundImage]),
-			faqBackgroundImage
-				? updateImages(
-						[faqBackgroundImage[0]],
-						[existingService.faqBackgroundImage]
-				  )
-				: Promise.resolve([existingService.faqBackgroundImage]),
-		]);
+		const [thumbnailUrl, contentImageUrls, galleryImageUrls] =
+			await Promise.all([
+				thumbnail
+					? updateImages([thumbnail[0]], [existingService.thumbnail])
+					: Promise.resolve([existingService.thumbnail]),
+
+				contentImages
+					? updateImages(contentImageFiles, existingImageUrls)
+					: Promise.resolve([existingImageUrls]),
+				contentGallery
+					? addNewGalleryImages(contentGalleryFiles)
+					: Promise.resolve([existingGalleryUrls]),
+			]);
 
 		const updatedContentBlocks = contentBlocks.map((block, index) => ({
 			...block,
@@ -146,6 +136,11 @@ exports.editService = async (req, res, next) => {
 		}));
 
 		const updatedGallery = existingGalleryUrls.concat(galleryImageUrls);
+
+		console.log("Existing gallery images", existingGalleryUrls);
+		console.log("Updated images", updatedGallery);
+		console.log("Content images", contentImageUrls);
+		console.log("Content block images", updatedContentBlocks);
 
 		let updatedService = {
 			name,
@@ -156,11 +151,7 @@ exports.editService = async (req, res, next) => {
 			faqs: JSON.parse(faqs),
 			thumbnail: thumbnailUrl[0],
 			gallery: updatedGallery,
-			priceImage: priceImage[0],
-			faqImage: faqImage[0],
 		};
-
-        console.log("Updated service: ", updatedService)
 
 		const service = await Service.findOneAndUpdate(
 			{ _id: serviceID },
