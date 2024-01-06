@@ -47,6 +47,7 @@ app.use("/api/blog", require("./routes/blog"));
 app.use("/api/announcement", require("./routes/announcement"));
 app.use("/api/term", require("./routes/term"));
 app.use("/api/event", require("./routes/event"));
+app.use("/api/homepage", require("./routes/homepage"));
 
 //error middleware
 app.use(errorHandler);

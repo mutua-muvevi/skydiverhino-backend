@@ -73,7 +73,7 @@ async function updateSingleFile(file, existingUrl) {
 }
 
 //the controller
-exports.updateHomepage = async (req, res, next) => {
+exports.editHomepage = async (req, res, next) => {
 	const { banner, intro, tandem, aff, subscribe, footer } = req.body;
 	const user = req.user;
 	const {
@@ -98,21 +98,6 @@ exports.updateHomepage = async (req, res, next) => {
 	if (!subscribe) errors.push("Subscribe is required");
 	if (!footer) errors.push("Footer is required");
 
-	if (!bannerVideo) errors.push("Banner video is required");
-	if (!introBackgroundImage)
-		errors.push("Intro background image is required");
-	if (!tandemBackgroundImage)
-		errors.push("Tandem background image is required");
-	if (!tandemGallery || !Array.isArray(tandemGallery))
-		errors.push("Tandem gallery is required");
-	if (!affBackgroundImage) errors.push("AFF background image is required");
-	if (!affGallery || !Array.isArray(affGallery))
-		errors.push("AFF gallery is required");
-	if (!subscribeImage) errors.push("Subscribe image is required");
-	if (!subscribeBackgroundImage)
-		errors.push("Subscribe background image is required");
-	if (!footerBackgroundImage)
-		errors.push("Footer background image is required");
 
 	if (errors.length > 0) {
 		logger.warn(
