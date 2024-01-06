@@ -183,7 +183,11 @@ exports.createService = async (req, res, next) => {
 		);
 		logger.info(`Upload time is ${endUpload - startUpload}ms`);
 	} catch (error) {
-		logger.error(`Error in CreateService Controller: ${error.message}`);
+		logger.error(
+			`Error in CreateService Controller: ${JSON.stringify(
+				error.message
+			)}`
+		);
 		next(error);
 	}
 };
