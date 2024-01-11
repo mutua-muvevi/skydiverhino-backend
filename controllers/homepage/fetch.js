@@ -14,7 +14,7 @@ exports.fetchHomepage = async (req, res, next) => {
 		const start = performance.now();
 
 		//find the homepage
-		const homepage = await Homepage.findOne().lean();
+		const homepage = await Homepage.find().lean();
 
 		if (!homepage) {
 			return next(new ErrorResponse("No homepage found", 404));
