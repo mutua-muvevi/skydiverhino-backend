@@ -75,7 +75,7 @@ const PricingSchema = new Schema({
 		},
 		currency: {
 			type: String,
-			enum: ["USD", "EUR", "GBP", "NGN"],
+			enum: ["USD", "EUR", "GBP", "NGN", "KES"],
 			required: [true, "Currency is required"],
 		},
 	},
@@ -112,7 +112,7 @@ const ServiceSchema = new Schema(
 				values: ["aff", "tandem"],
 				message: "The slug must be either 'aff' or 'tandem' instead received {VALUE}",
 			},
-			required: [true, "Service slug is required"],
+			// required: [true, "Service slug is required"],
 		},
 		name: {
 			type: String,
