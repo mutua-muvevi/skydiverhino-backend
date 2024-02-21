@@ -53,22 +53,23 @@ app.use("/api/homepage", require("./routes/homepage"));
 app.use(errorHandler);
 
 //define the port
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
 
-//listen to the port
-app.listen(PORT, () => logger.info(`Server started on port ${PORT}`));
+// //listen to the port
+// app.listen(PORT, () => logger.info(`Server started on port ${PORT}`));
 
-// process termination after unhandles promise rejection
-process.on("unhandledRejection", (error, promise) => {
-	if(error){
-		logger.error("Unhandled Promise Rejection Error :", error)
-		process.exit(1)
-	} else {
-		logger.info("Unhandled Promise :", promise)
-	}
-})
+// // process termination after unhandles promise rejection
+// process.on("unhandledRejection", (error, promise) => {
+// 	if(error){
+// 		logger.error("Unhandled Promise Rejection Error :", error)
+// 		process.exit(1)
+// 	} else {
+// 		logger.info("Unhandled Promise :", promise)
+// 	}
+// })
 
 // port connection
 module.exports = app;
+// console.log("No blockage")
 
-// require("./config/port")
+require("./config/port")

@@ -30,7 +30,7 @@
     "xss-clean": "^0.1.4"
   },
   "engines": {
-		"node": "16.x",
+		"node": "20.x",
 		"yarn": "1.x"
 	},
 	"scripts": {
